@@ -87,7 +87,7 @@ function onInspDown(e) {
   const pt = screenToWorld(mx, my);
   const comp = hitComp(pt);
   _secondary = false;
-  if (comp && comp.type === "IN" && !comp.extDriven) { toggleInput(comp); return; }
+  if (comp && comp.type === "IN" && !comp.extDriven) { comp.bits ? editWideInput(comp) : toggleInput(comp); return; }
   _splitDrag = { kind: "pan2", sx: e.clientX, sy: e.clientY, ox: App.split.view.ox, oy: App.split.view.oy };
 }
 
@@ -198,7 +198,8 @@ function onCanvasDown(e) {
   if (comp) {
     if (App.mode === "sim") {
       if (comp.type === "IN" && !comp.extDriven && atTop()) {
-        _drag = { kind: "clickIn", comp, sx: mx, sy: my };
+        if (comp.bits) editWideInput(comp);   // wide IN: type a value instead of toggling
+        else _drag = { kind: "clickIn", comp, sx: mx, sy: my };
       } else if (comp.type === "IN" && comp.extDriven) {
         toast("This input is driven from outside — use the Inputs ▾ menu.");
       }
@@ -312,15 +313,26 @@ function onCanvasUp(e) {
     let added = false;
     if (pin) {
       const circ = curCircuit();
+      // resolve the prospective wire's source (out) and dest (in) endpoints
+      let srcC, srcP, dstC, dstP, ok = false;
       if (pin.kind === "j") {
         // dropping onto a junction joins its bus — always merge, no Shift needed
-        if (W.kind === "out") { addWireBus(circ, W.comp, W.idx, pin.comp, pin.idx); added = true; }
+        if (W.kind === "out") { srcC = W.comp; srcP = W.idx; dstC = pin.comp; dstP = pin.idx; ok = true; }
       } else if (pin.kind !== W.kind) {
-        const add = e.shiftKey ? addWireBus : addWire;   // Shift = join a bus
-        if (W.kind === "out") add(circ, W.comp, W.idx, pin.comp, pin.idx);
-        else add(circ, pin.comp, pin.idx, W.comp, W.idx);
-        added = true;
-        if (e.shiftKey) toast("Added to bus (tri-state).");
+        if (W.kind === "out") { srcC = W.comp; srcP = W.idx; dstC = pin.comp; dstP = pin.idx; }
+        else { srcC = pin.comp; srcP = pin.idx; dstC = W.comp; dstP = W.idx; }
+        ok = true;
+      }
+      if (ok) {
+        const sb = pinBits(srcC, "out", srcP), db = pinBits(dstC, "in", dstP);
+        if (sb !== db) {
+          toast("Can't connect: bus widths differ (" + sb + "→" + db + " bits).");
+        } else {
+          const bus = pin.kind === "j" || e.shiftKey;   // junction or Shift = join a bus
+          (bus ? addWireBus : addWire)(circ, srcC, srcP, dstC, dstP);
+          added = true;
+          if (e.shiftKey && pin.kind !== "j") toast("Added to bus (tri-state).");
+        }
       }
     }
     App.wiring = null;
@@ -484,6 +496,10 @@ function copySelection() {
       const d = { type: c.type, id: c.id, x: c.x, y: c.y };
       if (c.numInputs != null) d.numInputs = c.numInputs;
       if (c.sel != null) d.sel = c.sel;
+      if (c.rows != null) d.rows = c.rows;
+      if (c.cols != null) d.cols = c.cols;
+      if (c.bits != null) d.bits = c.bits;
+      if (c.vals) d.vals = c.vals.slice();
       if (c.label != null) d.label = c.label;
       if (c.defName) d.defName = c.defName;
       if (c.rot) d.rot = c.rot;
@@ -522,7 +538,8 @@ function pasteClipboard() {
   const made = [];
   for (const d of _clipboard.comps) {
     const comp = makeComp(d.type, d.x + off, d.y + off, {
-      numInputs: d.numInputs, sel: d.sel, label: d.label, defName: d.defName, rot: d.rot,
+      numInputs: d.numInputs, sel: d.sel, rows: d.rows, cols: d.cols,
+      bits: d.bits, vals: d.vals, label: d.label, defName: d.defName, rot: d.rot,
     });
     if ((comp.type === "IN" || comp.type === "OUT") && comp.label) comp.label = dedupeLabel(circ, comp.label);
     map[d.id] = comp;
@@ -600,6 +617,37 @@ function onKeyDown(e) {
   if (mod && (e.key === "v" || e.key === "V")) { if (canEdit()) pasteClipboard(); e.preventDefault(); return; }
 }
 
+/* Parse a user-entered bus value: hex (0x..), binary (0b..) or decimal. */
+function parseBusValue(s) {
+  s = s.trim();
+  if (/^0x[0-9a-f]+$/i.test(s)) return parseInt(s.slice(2), 16);
+  if (/^0b[01]+$/i.test(s)) return parseInt(s.slice(2), 2);
+  if (/^\d+$/.test(s)) return parseInt(s, 10);
+  return null;
+}
+function busValsToHex(vals) {
+  let n = 0;
+  for (let i = 0; i < vals.length; i++) if (vals[i]) n += Math.pow(2, i);
+  return "0x" + n.toString(16).toUpperCase();
+}
+/* Prompt for and apply a new value to a wide (bus) IN, then re-simulate. */
+function editWideInput(c) {
+  if (!c.bits || !c.vals) return;
+  const s = prompt(
+    "Set " + (c.label || "bus") + " (" + c.bits + " bits) — hex 0x.., binary 0b.. or decimal:",
+    busValsToHex(c.vals));
+  if (s == null) return;
+  const n = parseBusValue(s);
+  if (n == null || !isFinite(n)) { toast("Couldn't parse \"" + s + "\"."); return; }
+  const max = Math.pow(2, c.bits);
+  const v = ((n % max) + max) % max;          // wrap into range
+  pushHistory();
+  for (let i = 0; i < c.bits; i++) c.vals[i] = Math.floor(v / Math.pow(2, i)) % 2 === 1;
+  settle();
+  timelineRecord();
+  afterSimChange();
+}
+
 function onUIHit(ui, mx, my) {
   if (ui.kind === "plus" || ui.kind === "minus") {
     const d = ui.kind === "plus" ? 1 : -1;
@@ -611,6 +659,10 @@ function onUIHit(ui, mx, my) {
     const dr = ui.kind === "rows+" ? 1 : ui.kind === "rows-" ? -1 : 0;
     const dc = ui.kind === "cols+" ? 1 : ui.kind === "cols-" ? -1 : 0;
     setMatrixSize(curCircuit(), c, c.rows + dr, c.cols + dc);
+    afterStructChange();
+  } else if (ui.kind === "bits-" || ui.kind === "bits+") {
+    const c = ui.comp;
+    setCompBits(curCircuit(), c, (c.bits || 1) + (ui.kind === "bits+" ? 1 : -1));
     afterStructChange();
   } else if (ui.kind === "expr") {
     App.openExpr = { comp: ui.comp, pin: ui.pin, mx, my };

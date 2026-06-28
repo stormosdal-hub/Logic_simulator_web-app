@@ -102,18 +102,41 @@ function inputVals(circ, c) {
    (the bus is floating). Conflicting active drivers are a short circuit;
    they resolve to false and are flagged separately by detectShortsIn.
    This function is pure — no side effects — so it is safe in render. */
-function busValue(circ, c, idx) {
-  const ws = wiresTo(circ, c.id, idx);
-  if (!ws.length) return false;
-  const vals = ws.map(w => {
-    const s = compById(circ, w.from.c);
-    return (s && s.out != null) ? s.out[w.from.p] : false;
-  });
+/* Resolve a single bit from its drivers' trit values: a lone active driver
+   (or several that agree) wins; all-Hi-Z → null (floating); disagreement → a
+   short, resolved to LOW. An empty list (no drivers at all) → null. */
+function resolveBit(vals) {
   const active = vals.filter(v => v !== null);
-  if (active.length === 0) return null;            // all Hi-Z → floating
-  if (active.length === 1) return !!active[0];
+  if (active.length === 0) return null;
   if (active.every(v => v === active[0])) return !!active[0];
-  return false;                                     // short → resolve to LOW
+  return false;
+}
+
+/* Compare two pin values for change detection: scalars by ===, arrays
+   element-wise (a wide bus value is an array of trits). */
+function bitEq(a, b) {
+  if (Array.isArray(a) || Array.isArray(b)) {
+    if (!Array.isArray(a) || !Array.isArray(b) || a.length !== b.length) return false;
+    for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return false;
+    return true;
+  }
+  return a === b;
+}
+function copyVal(v) { return Array.isArray(v) ? v.slice() : v; }
+
+function busValue(circ, c, idx) {
+  const W = pinBits(c, "in", idx);
+  const ws = wiresTo(circ, c.id, idx);
+  if (!ws.length) return W > 1 ? new Array(W).fill(false) : false;
+  const drv = ws.map(w => {
+    const s = compById(circ, w.from.c);
+    return (s && s.out != null) ? s.out[w.from.p] : (W > 1 ? new Array(W).fill(false) : false);
+  });
+  if (W === 1) return resolveBit(drv);
+  // wide bus: each driver value is an array of W trits — resolve bit by bit
+  const out = new Array(W);
+  for (let b = 0; b < W; b++) out[b] = resolveBit(drv.map(v => Array.isArray(v) ? v[b] : v));
+  return out;
 }
 
 /* LED(r,c) of a matrix is lit when both its row line and column line are
@@ -124,6 +147,7 @@ function matrixLit(circ, c, r, col) {
 
 /* True if an input pin has two+ active drivers that disagree (a short). */
 function busConflict(circ, c, idx) {
+  if (pinBits(c, "in", idx) > 1) return false;   // wide-bus shorts not tracked yet
   const ws = wiresTo(circ, c.id, idx);
   if (ws.length < 2) return false;
   const vals = ws.map(w => {
@@ -149,9 +173,9 @@ function passCircuit(circ) {
     switch (c.type) {
       case "IN": {
         // extValue may be null (a floating bus driving a chip pin) — keep it
-        // so Hi-Z propagates into custom chips; top-level IN state is boolean.
-        const v = c.extDriven ? c.extValue : c.state;
-        if (c.out[0] !== v) { c.out[0] = v; changed = true; }
+        // so Hi-Z propagates into custom chips. A wide IN drives an array.
+        const v = c.extDriven ? c.extValue : (c.bits ? c.vals : c.state);
+        if (!bitEq(c.out[0], v)) { c.out[0] = copyVal(v); changed = true; }
         break;
       }
       case "CLK": {
@@ -162,8 +186,25 @@ function passCircuit(circ) {
       case "HIGH": if (c.out[0] !== true)  { c.out[0] = true;  changed = true; } break;
       case "LOW":  if (c.out[0] !== false) { c.out[0] = false; changed = true; } break;
       case "OUT": {
-        const v = inputVals(circ, c)[0];   // may be null (floating bus)
-        if (c.state !== v) { c.state = v; changed = true; }
+        const v = inputVals(circ, c)[0];   // may be null (floating) or an array (wide)
+        if (!bitEq(c.state, v)) { c.state = copyVal(v); changed = true; }
+        break;
+      }
+      case "SPLITTER": {
+        // fan the wide input's bits out to `bits` 1-bit outputs (Hi-Z preserved)
+        const w = busValue(circ, c, 0);
+        for (let i = 0; i < c.bits; i++) {
+          const v = Array.isArray(w) ? w[i] : (i === 0 ? w : false);
+          if (c.out[i] !== v) { c.out[i] = v; changed = true; }
+        }
+        break;
+      }
+      case "MERGER": {
+        // gather the `bits` 1-bit inputs into one wide output value
+        const ins = inputVals(circ, c);
+        const v = new Array(c.bits);
+        for (let i = 0; i < c.bits; i++) v[i] = ins[i] === undefined ? false : ins[i];
+        if (!bitEq(c.out[0], v)) { c.out[0] = v; changed = true; }
         break;
       }
       case "TRI": {
@@ -190,12 +231,13 @@ function passCircuit(circ) {
         const ins = inputVals(circ, c);
         for (let i = 0; i < c.inputComps.length; i++) {
           const ic = c.inputComps[i];
-          if (ic.extValue !== ins[i]) { ic.extValue = ins[i]; changed = true; }
+          if (!bitEq(ic.extValue, ins[i])) { ic.extValue = copyVal(ins[i]); changed = true; }
         }
         if (passCircuit(c.circuit)) changed = true;
         for (let i = 0; i < c.outputComps.length; i++) {
-          const v = !!c.outputComps[i].state;
-          if (c.out[i] !== v) { c.out[i] = v; changed = true; }
+          const oc = c.outputComps[i];
+          const v = oc.bits ? oc.state : !!oc.state;   // wide output passes its array through
+          if (!bitEq(c.out[i], v)) { c.out[i] = copyVal(v); changed = true; }
         }
         break;
       }
@@ -236,9 +278,10 @@ function snapshotState() {
   const vals = {};
   walkAllComps(c => {
     vals[c.id] = {
-      out: c.out ? c.out.slice() : null,
-      state: c.state,
-      ext: c.extValue,
+      out: c.out ? c.out.map(copyVal) : null,
+      state: copyVal(c.state),
+      ext: copyVal(c.extValue),
+      vals: c.vals ? c.vals.slice() : undefined,
     };
   });
   return { clock: Sim.clock, cycles: Sim.cycles, vals };
@@ -250,9 +293,10 @@ function restoreState(s) {
   walkAllComps(c => {
     const v = s.vals[c.id];
     if (!v) return;
-    if (v.out && c.out) c.out = v.out.slice();
-    if (v.state !== undefined) c.state = v.state;
-    if (v.ext !== undefined) c.extValue = v.ext;
+    if (v.out && c.out) c.out = v.out.map(copyVal);
+    if (v.state !== undefined) c.state = copyVal(v.state);
+    if (v.ext !== undefined) c.extValue = copyVal(v.ext);
+    if (v.vals !== undefined && c.vals) c.vals = v.vals.slice();
   });
 }
 
@@ -350,8 +394,9 @@ function exitSim() {
 
 function computeTruthTable() {
   const top = App.topCircuit;
-  const ins = sortedPinComps(top, "IN");
-  const outs = sortedPinComps(top, "OUT");
+  // truth tables enumerate 1-bit inputs only; wide bus IN/OUT are skipped
+  const ins = sortedPinComps(top, "IN").filter(c => !c.bits);
+  const outs = sortedPinComps(top, "OUT").filter(c => !c.bits);
   if (!ins.length) return { error: "Add Input components to the worksheet first." };
   if (ins.length > 8) return { error: "Too many inputs — truth tables support up to 8." };
   if (!outs.length) return { error: "Add Output components to the worksheet to see results." };
@@ -434,6 +479,9 @@ function exprTreeForOutputPin(ctx, comp, pin, visited, budget) {
     case "ENC": return { k: "leaf", text: "ENC" + pin, val: curVal };
     case "BENC": return { k: "leaf", text: "BENC" + pin, val: curVal };
     case "BDEC": return { k: "leaf", text: "BDEC" + pin, val: curVal };
+    // bus components: a full bit-level expansion would be noisy — show a leaf
+    case "SPLITTER": return { k: "leaf", text: "BUS" + pin, val: curVal };
+    case "MERGER": return { k: "leaf", text: "BUS", val: curVal };
     case "CUSTOM": {
       visited.add(key);
       const oc = comp.outputComps[pin];
@@ -506,7 +554,7 @@ function exprToHtml(n) {
 function topOutputExprs() {
   const top = App.topCircuit;
   const ctx = { circuit: top, parent: null };
-  return sortedPinComps(top, "OUT").map(o => {
+  return sortedPinComps(top, "OUT").filter(o => !o.bits).map(o => {
     const w = wireTo(top, o.id, 0);
     let expr = "(not connected)", html = '<span class="sg off">(not connected)</span>';
     if (w) {
@@ -527,9 +575,9 @@ const Timeline = { samples: [], hidden: {}, max: 600 };
 function timelineSignals() {
   const sigs = [{ id: "__clk", label: "CLK", kind: "clk" }];
   for (const c of sortedPinComps(App.topCircuit, "IN"))
-    sigs.push({ id: c.id, label: c.label, kind: "in" });
+    if (!c.bits) sigs.push({ id: c.id, label: c.label, kind: "in" });
   for (const c of sortedPinComps(App.topCircuit, "OUT"))
-    sigs.push({ id: c.id, label: c.label, kind: "out" });
+    if (!c.bits) sigs.push({ id: c.id, label: c.label, kind: "out" });
   return sigs;
 }
 
@@ -537,6 +585,7 @@ function timelineRecord() {
   if (App.mode !== "sim") return;
   const v = { __clk: Sim.clock };
   for (const c of App.topCircuit.components) {
+    if (c.bits) continue;   // wide bus IN/OUT are not single-line timeline signals
     if (c.type === "IN") v[c.id] = !!c.out[0];
     else if (c.type === "OUT") v[c.id] = !!c.state;
   }

@@ -61,6 +61,13 @@ function buildPalette() {
       ],
     },
     {
+      title: "Bus",
+      items: [
+        { kind: "part", type: "SPLITTER", name: "Bus Splitter" },
+        { kind: "part", type: "MERGER", name: "Bus Merger" },
+      ],
+    },
+    {
       title: "Latches & flip-flops",
       items: builtinDefs("ff").map(d => ({ kind: "chip", defName: d.name, name: d.name })),
     },
@@ -321,6 +328,18 @@ function renderInputsPanel(el) {
     const lbl = document.createElement("span");
     lbl.className = "lbl";
     lbl.textContent = c.label;
+    if (c.bits) {   // wide bus input: show its value, click to set
+      lbl.textContent = c.label + " (" + c.bits + "b)";
+      const v = document.createElement("button");
+      v.className = "sw";
+      v.textContent = busValsToHex(c.vals);
+      v.title = "Set value (hex / binary / decimal)";
+      v.addEventListener("click", () => { editWideInput(c); renderInputsPanel(el); });
+      row.appendChild(lbl);
+      row.appendChild(v);
+      el.appendChild(row);
+      continue;
+    }
     const hold = document.createElement("button");
     hold.className = "sw hold" + (c._held ? " on" : "");
     hold.textContent = "⏼ hold";
