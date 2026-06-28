@@ -25,6 +25,8 @@ All tests must pass before marking any task complete.
 
 ## Architecture
 
+> See [`ARCHITECTURE.md`](ARCHITECTURE.md) for the full subsystem map — the core loop, the four clusters (data model / engine / renderer / interaction), the tri-state logic, and the purity-decides-boundaries principle.
+
 **No globals from the browser** — `render.js`, `ui.js`, and `interact.js` require a DOM and cannot be loaded in Node.js tests. Only `model.js`, `engine.js`, and `builtins.js` are pure.
 
 **Simulation model:** Gauss-Seidel relaxation — `passCircuit()` iterates all components until no value changes, up to 800 passes. Feedback loops (latches) hold state between passes. Circuits that never settle are flagged `Sim.unstable`.
