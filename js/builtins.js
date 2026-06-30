@@ -11,6 +11,7 @@ function defineBuiltin(name, short, cat, build) {
     c(key, type, x, y, opts = {}) {
       const d = { id: key, type, x, y };
       if (GATE_TYPES[type]) d.numInputs = opts.n || GATE_TYPES[type].defIn;
+      if (opts.bits) d.bits = opts.bits;          // SPLITTER / MERGER width
       if (opts.label) d.label = opts.label;
       comps.push(d);
       return key;
@@ -19,12 +20,16 @@ function defineBuiltin(name, short, cat, build) {
       comps.push({ id: key, type: "CUSTOM", defName, x, y });
       return key;
     },
-    in(key, x, y, label) {
-      comps.push({ id: key, type: "IN", x, y, label: label || key });
+    in(key, x, y, label, bits) {
+      const d = { id: key, type: "IN", x, y, label: label || key };
+      if (bits) d.bits = bits;                    // wide bus input
+      comps.push(d);
       return key;
     },
-    out(key, x, y, fromSpec, label) {
-      comps.push({ id: key, type: "OUT", x, y, label: label || key });
+    out(key, x, y, fromSpec, label, bits) {
+      const d = { id: key, type: "OUT", x, y, label: label || key };
+      if (bits) d.bits = bits;                    // wide bus output
+      comps.push(d);
       if (fromSpec) A.w(fromSpec, key + ".0");
       return key;
     },
@@ -165,6 +170,26 @@ function registerBuiltinDefs() {
       A.w(i ? "ff" + (i - 1) + ".1" : "CLK.0", "ff" + i + ".1"); // ripple via Q'
       A.out("Q" + i, 200 + i * 192, 232, "ff" + i + ".0");
     }
+  });
+
+  /* 8-bit register with a wide (bus) data input and output — the payoff of
+     the bus feature. The 8-bit D bus is split into bits, each captured by a D
+     flip-flop on the shared clock, and the eight Q outputs are merged back into
+     an 8-bit Q bus. Externally it has just two input pins (D[8], CLK) and one
+     output pin (Q[8]), so two of these wire together with a single bus wire. */
+  defineBuiltin("8-bit Register", "REG8", "reg", A => {
+    A.in("D", 40, 40, "D", 8);          // wide bus input (pin 0)
+    A.c("sp", "SPLITTER", 200, 40, { bits: 8 });
+    A.w("D.0", "sp.0");
+    A.c("mg", "MERGER", 640, 40, { bits: 8 });
+    for (let i = 0; i < 8; i++) {
+      A.chip("ff" + i, "D Flip-Flop", 380, 24 + i * 110);
+      A.w("sp." + i, "ff" + i + ".0");   // split bit i → D
+      A.w("CLK.0", "ff" + i + ".1");     // shared clock
+      A.w("ff" + i + ".0", "mg." + i);   // Q → merge bit i
+    }
+    A.in("CLK", 40, 980, "CLK");         // clock pin sorts last (pin 1)
+    A.out("Q", 800, 40, "mg.0", "Q", 8); // wide bus output
   });
 
   /* D latch with asynchronous active-low clear:

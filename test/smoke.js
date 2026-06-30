@@ -7,7 +7,7 @@ const ctx = vm.createContext({ console });
 for (const f of ["model.js", "builtins.js", "engine.js"]) {
   vm.runInContext(fs.readFileSync(path.join(__dirname, "..", "js", f), "utf8"), ctx, { filename: f });
 }
-const T = vm.runInContext("({App, Sim, Defs, Timeline, makeComp, newCircuit, setTopCircuit, addWire, addWireBus, wiresTo, busValue, settle, registerBuiltinDefs, sortedPinComps, computeTruthTable, topOutputExprs, exprTreeForOutputPin, exprToText, exprToHtml, ctxForViewStack, clockTick, stepBack, snapshotState, restoreState, wireTo, compById, defaultWireRoute, wireRoutePoints, pinPos, pinPosLogical, compBox, rotateAround, numInputsOf, numOutputsOf, setAddrSel, evalAddr, setMatrixSize, matrixLit})", ctx);
+const T = vm.runInContext("({App, Sim, Defs, Timeline, makeComp, newCircuit, setTopCircuit, addWire, addWireBus, wiresTo, busValue, settle, settleFrom, registerBuiltinDefs, sortedPinComps, computeTruthTable, topOutputExprs, exprTreeForOutputPin, exprToText, exprToHtml, ctxForViewStack, clockTick, stepBack, snapshotState, restoreState, wireTo, compById, defaultWireRoute, wireRoutePoints, pinPos, pinPosLogical, compBox, rotateAround, numInputsOf, numOutputsOf, setAddrSel, evalAddr, setMatrixSize, matrixLit, pinBits, setCompBits, resolveBit, bitEq, createDefFromCircuit, serializeCircuit})", ctx);
 
 let pass = 0, fail = 0;
 function check(name, cond) {
@@ -781,6 +781,329 @@ T.registerBuiltinDefs();
   T.setAddrSel(c, bdec, 3);   // 3:8
   check("BDEC 3:8 has 3 inputs", T.numInputsOf(bdec) === 3);
   check("BDEC 3:8 has 8 outputs", T.numOutputsOf(bdec) === 8);
+}
+
+/* ---- 36. bit/array helpers ---- */
+{
+  check("resolveBit single active", T.resolveBit([true]) === true);
+  check("resolveBit all Hi-Z -> null", T.resolveBit([null, null]) === null);
+  check("resolveBit agree", T.resolveBit([true, true]) === true);
+  check("resolveBit conflict -> false", T.resolveBit([true, false]) === false);
+  check("resolveBit empty -> null", T.resolveBit([]) === null);
+  check("bitEq arrays equal", T.bitEq([true, false], [true, false]) === true);
+  check("bitEq arrays differ", T.bitEq([true, false], [true, true]) === false);
+  check("bitEq scalar null", T.bitEq(null, null) === true);
+  check("bitEq mixed shape", T.bitEq([true], true) === false);
+}
+
+/* ---- 37. MERGER gathers 1-bit inputs into a wide value ---- */
+{
+  const c = T.newCircuit();
+  T.setTopCircuit(c);
+  const m = T.makeComp("MERGER", 200, 0, { bits: 4 });
+  const ins = [];
+  for (let i = 0; i < 4; i++) { const a = T.makeComp("IN", 0, i * 40, { label: "B" + i }); ins.push(a); c.components.push(a); }
+  c.components.push(m);
+  for (let i = 0; i < 4; i++) T.addWire(c, ins[i], 0, m, i);
+  check("MERGER bits=4 has 4 inputs", T.numInputsOf(m) === 4);
+  check("MERGER has 1 output", T.numOutputsOf(m) === 1);
+  check("MERGER out pin is 4 bits wide", T.pinBits(m, "out", 0) === 4);
+  ins[0].state = true; ins[2].state = true; T.settle();
+  const v = m.out[0];
+  check("MERGER merges bits to array", Array.isArray(v) && v[0] === true && v[1] === false && v[2] === true && v[3] === false);
+}
+
+/* ---- 38. SPLITTER fans a wide value out to 1-bit outputs ---- */
+{
+  const c = T.newCircuit();
+  T.setTopCircuit(c);
+  const a = T.makeComp("IN", 0, 0, { label: "BUS", bits: 4 });
+  const sp = T.makeComp("SPLITTER", 200, 0, { bits: 4 });
+  const outs = [];
+  for (let i = 0; i < 4; i++) { const o = T.makeComp("OUT", 400, i * 40, { label: "Q" + i }); outs.push(o); c.components.push(o); }
+  c.components.push(a, sp);
+  T.addWire(c, a, 0, sp, 0);
+  for (let i = 0; i < 4; i++) T.addWire(c, sp, i, outs[i], 0);
+  check("SPLITTER bits=4 has 1 input", T.numInputsOf(sp) === 1);
+  check("SPLITTER bits=4 has 4 outputs", T.numOutputsOf(sp) === 4);
+  check("SPLITTER in pin is 4 bits wide", T.pinBits(sp, "in", 0) === 4);
+  a.vals = [true, false, true, true]; T.settle();
+  check("SPLITTER bit0", outs[0].state === true);
+  check("SPLITTER bit1", outs[1].state === false);
+  check("SPLITTER bit2", outs[2].state === true);
+  check("SPLITTER bit3", outs[3].state === true);
+}
+
+/* ---- 39. merge -> bus wire -> split round-trip ---- */
+{
+  const c = T.newCircuit();
+  T.setTopCircuit(c);
+  const m = T.makeComp("MERGER", 200, 0, { bits: 4 });
+  const sp = T.makeComp("SPLITTER", 400, 0, { bits: 4 });
+  const ins = [], outs = [];
+  for (let i = 0; i < 4; i++) { const a = T.makeComp("IN", 0, i * 40, { label: "I" + i }); ins.push(a); c.components.push(a); }
+  for (let i = 0; i < 4; i++) { const o = T.makeComp("OUT", 600, i * 40, { label: "O" + i }); outs.push(o); c.components.push(o); }
+  c.components.push(m, sp);
+  for (let i = 0; i < 4; i++) T.addWire(c, ins[i], 0, m, i);
+  T.addWire(c, m, 0, sp, 0);   // single bus wire carries all 4 bits
+  for (let i = 0; i < 4; i++) T.addWire(c, sp, i, outs[i], 0);
+  ins[1].state = true; ins[3].state = true; T.settle();
+  check("roundtrip b0", outs[0].state === false);
+  check("roundtrip b1", outs[1].state === true);
+  check("roundtrip b2", outs[2].state === false);
+  check("roundtrip b3", outs[3].state === true);
+}
+
+/* ---- 40. setCompBits resizes a bus component ---- */
+{
+  const c = T.newCircuit();
+  T.setTopCircuit(c);
+  const m = T.makeComp("MERGER", 0, 0, { bits: 4 });
+  c.components.push(m);
+  check("MERGER default 4 inputs", T.numInputsOf(m) === 4);
+  T.setCompBits(c, m, 8);
+  check("MERGER resized to 8 inputs", T.numInputsOf(m) === 8);
+  check("MERGER out width now 8", T.pinBits(m, "out", 0) === 8);
+  check("MERGER out array length 8", m.out[0].length === 8);
+}
+
+/* ---- 41. wide value flows through a CUSTOM chip pin ---- */
+{
+  const c = T.newCircuit();
+  T.setTopCircuit(c);
+  const din = T.makeComp("IN", 0, 0, { label: "D", bits: 4 });
+  const dout = T.makeComp("OUT", 200, 0, { label: "Q", bits: 4 });
+  c.components.push(din, dout);
+  T.addWire(c, din, 0, dout, 0);   // wide IN directly to wide OUT (widths match)
+  T.createDefFromCircuit("Bus Wire 4", c, { short: "BW4" });
+
+  const c2 = T.newCircuit();
+  T.setTopCircuit(c2);
+  const a = T.makeComp("IN", 0, 0, { label: "A", bits: 4 });
+  const chip = T.makeComp("CUSTOM", 200, 0, { defName: "Bus Wire 4" });
+  const q = T.makeComp("OUT", 400, 0, { label: "R", bits: 4 });
+  c2.components.push(a, chip, q);
+  check("CUSTOM wide input pin is 4 bits", T.pinBits(chip, "in", 0) === 4);
+  check("CUSTOM wide output pin is 4 bits", T.pinBits(chip, "out", 0) === 4);
+  T.addWire(c2, a, 0, chip, 0);
+  T.addWire(c2, chip, 0, q, 0);
+  a.vals = [true, true, false, true]; T.settle();
+  const v = q.state;
+  check("wide value through CUSTOM", Array.isArray(v) && v[0] === true && v[1] === true && v[2] === false && v[3] === true);
+}
+
+/* ---- 42. snapshot / restore of a wide net ---- */
+{
+  const c = T.newCircuit();
+  T.setTopCircuit(c);
+  const a = T.makeComp("IN", 0, 0, { label: "A", bits: 4 });
+  const q = T.makeComp("OUT", 200, 0, { label: "Q", bits: 4 });
+  c.components.push(a, q);
+  T.addWire(c, a, 0, q, 0);
+  a.vals = [true, false, false, false]; T.settle();
+  const snap = T.snapshotState();
+  a.vals = [false, true, true, true]; T.settle();
+  check("wide changed before restore", q.state[1] === true && q.state[0] === false);
+  T.restoreState(snap); T.settle();
+  check("wide restored b0", q.state[0] === true);
+  check("wide restored b1", q.state[1] === false);
+}
+
+/* ---- 43. Hi-Z bit propagates through a bus ---- */
+{
+  const c = T.newCircuit();
+  T.setTopCircuit(c);
+  const tri = T.makeComp("TRI", 0, 0);
+  const en = T.makeComp("IN", 0, 80, { label: "EN" });
+  const hi = T.makeComp("HIGH", 0, -40);
+  const m = T.makeComp("MERGER", 200, 0, { bits: 2 });
+  const sp = T.makeComp("SPLITTER", 400, 0, { bits: 2 });
+  const o0 = T.makeComp("OUT", 600, 0, { label: "O0" });
+  const o1 = T.makeComp("OUT", 600, 80, { label: "O1" });
+  c.components.push(tri, en, hi, m, sp, o0, o1);
+  T.addWire(c, hi, 0, tri, 0);   // tri data = 1
+  T.addWire(c, en, 0, tri, 1);   // tri enable
+  T.addWire(c, tri, 0, m, 0);    // bit0 driven by tri (bit1 left unwired -> 0)
+  T.addWire(c, m, 0, sp, 0);
+  T.addWire(c, sp, 0, o0, 0);
+  T.addWire(c, sp, 1, o1, 0);
+  en.state = false; T.settle();  // tri disabled -> Hi-Z on bit0
+  check("Hi-Z bit splits to null", o0.state === null);
+  check("unwired bit splits to false", o1.state === false);
+  en.state = true; T.settle();   // tri enabled, data high -> bit0 = 1
+  check("enabled bit splits to true", o0.state === true);
+}
+
+/* ---- 44. 8-bit Register: wide chip pins + datapath payoff ---- */
+{
+  const toNum = a => Array.isArray(a) ? a.reduce((s, b, i) => s + (b ? Math.pow(2, i) : 0), 0) : -1;
+  const c = T.newCircuit();
+  T.setTopCircuit(c);
+  const d = T.makeComp("IN", 0, 0, { label: "D", bits: 8 });
+  const clk = T.makeComp("CLK", 0, 200);
+  const reg = T.makeComp("CUSTOM", 200, 0, { defName: "8-bit Register" });
+  const q = T.makeComp("OUT", 400, 0, { label: "Q", bits: 8 });
+  c.components.push(d, clk, reg, q);
+  check("REG8 has 2 input pins", T.numInputsOf(reg) === 2);
+  check("REG8 D pin is 8 bits wide", T.pinBits(reg, "in", 0) === 8);
+  check("REG8 CLK pin is 1 bit", T.pinBits(reg, "in", 1) === 1);
+  check("REG8 Q pin is 8 bits wide", T.pinBits(reg, "out", 0) === 8);
+  T.addWire(c, d, 0, reg, 0);   // single 8-bit bus wire for data
+  T.addWire(c, clk, 0, reg, 1);
+  T.addWire(c, reg, 0, q, 0);   // single 8-bit bus wire for output
+
+  // D = 0xA5 = 1010_0101 ; bit 0 is LSB
+  d.vals = [true, false, true, false, false, true, false, true];
+  T.Sim.clock = false; T.settle();
+  check("REG8 Q=0 before clock edge", toNum(q.state) === 0);
+  T.Sim.clock = true; T.settle();   // rising edge captures D
+  check("REG8 captures 0xA5 on rising edge", toNum(q.state) === 0xA5);
+  d.vals = new Array(8).fill(false); T.settle();   // change D with no new edge
+  check("REG8 holds value until next clock", toNum(q.state) === 0xA5);
+  T.Sim.clock = false; T.settle();
+  T.Sim.clock = true; T.settle();   // next rising edge captures D=0
+  check("REG8 captures new value on next edge", toNum(q.state) === 0);
+}
+
+/* ---- 45. wide IN/OUT round-trip through serialize/deserialize ---- */
+{
+  const c = T.newCircuit();
+  T.setTopCircuit(c);
+  const a = T.makeComp("IN", 0, 0, { label: "A", bits: 6 });
+  a.vals = [true, true, false, false, true, false];
+  const o = T.makeComp("OUT", 200, 0, { label: "O", bits: 6 });
+  const sp = T.makeComp("SPLITTER", 100, 0, { bits: 6 });
+  c.components.push(a, o, sp);
+  const data = T.serializeCircuit(c);
+  const aD = data.components.find(d => d.id === a.id);
+  check("serialized IN keeps bits", aD.bits === 6);
+  check("serialized IN keeps vals", Array.isArray(aD.vals) && aD.vals[0] === true && aD.vals[4] === true);
+  check("serialized SPLITTER keeps bits", data.components.find(d => d.id === sp.id).bits === 6);
+  const live = T.makeComp("IN", 0, 0, { label: "A", bits: aD.bits, vals: aD.vals });
+  check("deserialized wide IN width", T.pinBits(live, "out", 0) === 6);
+  check("deserialized wide IN vals restored", live.vals[1] === true && live.vals[2] === false);
+}
+
+/* ---- 46. event-driven settle: deep chain costs O(N), not O(N*depth) ---- */
+{
+  const N = 300;
+  const c = T.newCircuit();
+  T.setTopCircuit(c);
+  const a = T.makeComp("IN", 0, 0, { label: "A" });
+  c.components.push(a);
+  let prev = a;
+  for (let i = 0; i < N; i++) {
+    const b = T.makeComp("BUF", (i + 1) * 10, 0);
+    c.components.push(b);
+    T.addWire(c, prev, 0, b, 0);
+    prev = b;
+  }
+  const q = T.makeComp("OUT", (N + 1) * 10, 0, { label: "Q" });
+  c.components.push(q);
+  T.addWire(c, prev, 0, q, 0);
+  const comps = c.components.length;   // IN + N BUF + OUT
+
+  a.state = true; T.settle();
+  check("deep chain propagates value", q.state === true);
+  check("deep chain is stable", T.Sim.unstable === false);
+  // event-driven: each component settles in ~1 evaluation (it's a topological
+  // chain). The old full-pass relaxation would cost ~comps*depth evaluations.
+  check("deep chain settles in O(N) evals (event-driven)", T.Sim.lastEvals < comps * 3);
+
+  // a single input flip re-settles in O(N) too (each settle re-seeds + drains)
+  a.state = false; T.settle();
+  check("input flip re-settles O(N)", T.Sim.lastEvals < comps * 3 && q.state === false);
+}
+
+/* ---- 47. event-driven settle still reaches feedback fixed points ---- */
+{
+  // a gated SR latch built inline (two cross-coupled NORs) must hold state
+  const c = T.newCircuit();
+  T.setTopCircuit(c);
+  const s = T.makeComp("IN", 0, 0, { label: "S" });
+  const r = T.makeComp("IN", 0, 100, { label: "R" });
+  const n1 = T.makeComp("NOR", 100, 0);
+  const n2 = T.makeComp("NOR", 100, 100);
+  const q = T.makeComp("OUT", 250, 0, { label: "Q" });
+  c.components.push(s, r, n1, n2, q);
+  T.addWire(c, r, 0, n1, 0);
+  T.addWire(c, n2, 0, n1, 1);   // cross-couple
+  T.addWire(c, s, 0, n2, 0);
+  T.addWire(c, n1, 0, n2, 1);   // cross-couple
+  T.addWire(c, n1, 0, q, 0);
+  s.state = true; r.state = false; T.settle();
+  check("inline NOR latch set -> Q=1", q.state === true);
+  check("inline NOR latch stable on set", T.Sim.unstable === false);
+  s.state = false; T.settle();
+  check("inline NOR latch holds Q=1", q.state === true);
+  r.state = true; T.settle();
+  check("inline NOR latch reset -> Q=0", q.state === false);
+  r.state = false; T.settle();
+  check("inline NOR latch holds Q=0", q.state === false);
+}
+
+/* ---- 48. settleFrom re-settles only the changed input's cone ---- */
+{
+  const D = 100;
+  const c = T.newCircuit();
+  T.setTopCircuit(c);
+  // two independent buffer chains A and B
+  function chain(label, y) {
+    const inp = T.makeComp("IN", 0, y, { label });
+    c.components.push(inp);
+    let prev = inp;
+    for (let i = 0; i < D; i++) { const b = T.makeComp("BUF", (i + 1) * 10, y); c.components.push(b); T.addWire(c, prev, 0, b, 0); prev = b; }
+    const out = T.makeComp("OUT", (D + 1) * 10, y, { label: label + "q" });
+    c.components.push(out);
+    T.addWire(c, prev, 0, out, 0);
+    return { inp, out };
+  }
+  const A = chain("A", 0), B = chain("B", 500);
+  const total = c.components.length;   // 2*(1+D+1)
+  A.inp.state = false; B.inp.state = true;
+  T.settle();   // full cold settle seeds everything
+  check("settleFrom setup: A.q=0", A.out.state === false);
+  check("settleFrom setup: B.q=1", B.out.state === true);
+
+  // flip only A and re-settle from just that input
+  A.inp.state = true;
+  T.settleFrom([A.inp]);
+  check("settleFrom propagates A", A.out.state === true);
+  check("settleFrom leaves B untouched", B.out.state === true);
+  // only chain A's ~D+2 comps were evaluated, not chain B's half
+  check("settleFrom is local (cone only)", T.Sim.lastEvals <= D + 5 && T.Sim.lastEvals < total);
+
+  // incremental result must match a full re-settle
+  const ev = T.Sim.lastEvals;
+  T.settle();
+  check("settleFrom matches full settle (A.q)", A.out.state === true);
+  check("settleFrom matches full settle (B.q)", B.out.state === true);
+  check("full settle touched the whole circuit", T.Sim.lastEvals > ev);
+}
+
+/* ---- 49. clockTick (incremental clock edge) drives a stateful counter ---- */
+{
+  const c = T.newCircuit();
+  T.setTopCircuit(c);
+  const clk = T.makeComp("CLK", 0, 0);
+  const cnt = T.makeComp("CUSTOM", 100, 0, { defName: "4-bit Counter" });
+  const outs = [];
+  for (let i = 0; i < 4; i++) { const o = T.makeComp("OUT", 300, i * 50, { label: "Q" + i }); outs.push(o); }
+  c.components.push(clk, cnt, ...outs);
+  T.addWire(c, clk, 0, cnt, 0);
+  for (let i = 0; i < 4; i++) T.addWire(c, cnt, i, outs[i], 0);
+  T.Sim.clock = false; T.settle();
+  const val = () => outs.reduce((a, o, i) => a + (o.state ? 1 << i : 0), 0);
+  const start = val();
+  T.App.mode = "sim";
+  let good = true;
+  for (let k = 1; k <= 16; k++) {
+    T.clockTick();   // rising edge (settleFrom on the clock cone, inside a CUSTOM)
+    T.clockTick();   // falling edge
+    if (val() !== (start + k) % 16) { good = false; console.log("   clockTick counter wrong at step " + k + ": " + val()); break; }
+  }
+  T.App.mode = "edit";
+  check("clockTick drives counter via incremental settle", good);
 }
 
 console.log("\n" + pass + " passed, " + fail + " failed");

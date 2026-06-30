@@ -37,6 +37,15 @@ function addrWidth(c) { return 1 << c.sel; }   // number of data lines = 2^sel
    its row and column lines are high (hardware row/column drive). */
 const MATRIX_MIN = 1, MATRIX_MAX = 16, MATRIX_CELL = 16, MATRIX_PAD = 22;
 
+/* Bus components carry a `bits` count (1–32). A SPLITTER fans one wide input
+   into `bits` 1-bit outputs; a MERGER gathers `bits` 1-bit inputs into one wide
+   output. IN/OUT may also carry an optional `bits` to act as wide bus pins.
+   A pin value is a single trit (true/false/null) when 1 bit, or an array of
+   trits when wider — see pinBits() / busValue(). */
+const BUS_MIN = 1, BUS_MAX = 32;
+function clampBits(n) { return Math.max(BUS_MIN, Math.min(BUS_MAX, n || 1)); }
+function isBus(t) { return t === "SPLITTER" || t === "MERGER"; }
+
 /* Registry of component definitions (builtin + custom), by name */
 const Defs = {};
 
@@ -66,7 +75,11 @@ function splitCurCircuit() {
 /* ---------------- circuits ---------------- */
 
 function newCircuit() { return { components: [], wires: [], _maps: null }; }
-function touchCircuit(c) { c._maps = null; }
+/* Invalidate a circuit's lazy wire/id maps. Also bumps the global structural
+   epoch so the engine's cached eval-graph (built across the whole hierarchy)
+   rebuilds on the next settle. Guarded because model.js loads before engine.js
+   defines Sim — touchCircuit is never called during that load. */
+function touchCircuit(c) { c._maps = null; if (typeof Sim !== "undefined") Sim.graphEpoch++; }
 
 function getMaps(circ) {
   if (!circ._maps) {
@@ -111,11 +124,15 @@ function numInputsOf(c) {
   if (c.type === "BENC")  return addrWidth(c);          // 2^sel one-hot inputs
   if (c.type === "BDEC")  return c.sel;                 // sel binary inputs
   if (c.type === "MATRIX") return c.rows + c.cols;      // row lines + column lines
+  if (c.type === "SPLITTER") return 1;                  // one wide input
+  if (c.type === "MERGER")   return c.bits;             // `bits` 1-bit inputs
   return 0;
 }
 function numOutputsOf(c) {
   if (c.type === "OUT") return 0;
   if (c.type === "MATRIX") return 0;                    // display sink, no outputs
+  if (c.type === "SPLITTER") return c.bits;             // `bits` 1-bit outputs
+  if (c.type === "MERGER")   return 1;                  // one wide output
   if (c.type === "CUSTOM") return c.outputComps.length;
   if (c.type === "DEMUX") return addrWidth(c);          // 2^sel outputs
   if (c.type === "DEC")   return addrWidth(c);          // 2^sel one-hot outputs
@@ -127,6 +144,23 @@ function numOutputsOf(c) {
 
 /* The select-input index range for MUX/DEMUX (select pins follow data pins). */
 function muxSelStart(c) { return c.type === "MUX" ? addrWidth(c) : 1; }
+
+/* Bit-width of a given pin. 1 for everything except the wide pins of bus
+   components, wide IN/OUT, and a CUSTOM chip pin that maps to a wide internal
+   IN/OUT. Used to draw fat wires, match widths when wiring, and shape values. */
+function pinBits(c, kind, idx) {
+  switch (c.type) {
+    case "SPLITTER": return kind === "in"  ? (c.bits || 1) : 1;
+    case "MERGER":   return kind === "out" ? (c.bits || 1) : 1;
+    case "IN":       return kind === "out" ? (c.bits || 1) : 1;
+    case "OUT":      return kind === "in"  ? (c.bits || 1) : 1;
+    case "CUSTOM": {
+      const ic = kind === "in" ? c.inputComps[idx] : c.outputComps[idx];
+      return ic ? (ic.bits || 1) : 1;
+    }
+  }
+  return 1;
+}
 
 function makeComp(type, x, y, opts = {}) {
   const c = { id: uid(), type, x, y };
@@ -144,8 +178,33 @@ function makeComp(type, x, y, opts = {}) {
     c.cols = clamp(opts.cols);
     c.out = [];   // no outputs; lit state is derived live from inputs in render
   } else switch (type) {
-    case "IN":   c.label = opts.label || "A"; c.state = !!opts.state; c.out = [false]; break;
-    case "OUT":  c.label = opts.label || "Q"; c.state = false; break;
+    case "IN": {
+      c.label = opts.label || "A";
+      const b = clampBits(opts.bits || 1);
+      if (b > 1) {
+        c.bits = b;
+        c.vals = (opts.vals && opts.vals.length === b) ? opts.vals.map(Boolean) : new Array(b).fill(false);
+        c.out = [c.vals.slice()];
+      } else { c.state = !!opts.state; c.out = [false]; }
+      break;
+    }
+    case "OUT": {
+      c.label = opts.label || "Q";
+      const b = clampBits(opts.bits || 1);
+      if (b > 1) { c.bits = b; c.state = new Array(b).fill(false); }
+      else c.state = false;
+      break;
+    }
+    case "SPLITTER": {
+      c.bits = clampBits(opts.bits || 8);
+      c.out = new Array(c.bits).fill(false);   // `bits` 1-bit outputs
+      break;
+    }
+    case "MERGER": {
+      c.bits = clampBits(opts.bits || 8);
+      c.out = [new Array(c.bits).fill(false)]; // one wide output (array value)
+      break;
+    }
     case "CLK":  c.out = [false]; break;
     case "HIGH": c.out = [true]; break;
     case "LOW":  c.out = [false]; break;
@@ -177,7 +236,7 @@ function instantiateData(data, inputIds, outputIds) {
     let c;
     try {
       c = makeComp(d.type, d.x, d.y,
-        { numInputs: d.numInputs, sel: d.sel, rows: d.rows, cols: d.cols, label: d.label, state: d.state, defName: d.defName, rot: d.rot });
+        { numInputs: d.numInputs, sel: d.sel, rows: d.rows, cols: d.cols, bits: d.bits, vals: d.vals, label: d.label, state: d.state, defName: d.defName, rot: d.rot });
     } catch (err) { console.warn(err.message); continue; }
     map[d.id] = c;
     circuit.components.push(c);
@@ -207,8 +266,9 @@ function serializeCircuit(circ) {
       if (c.sel != null) d.sel = c.sel;
       if (c.rows != null) d.rows = c.rows;
       if (c.cols != null) d.cols = c.cols;
+      if (c.bits != null) d.bits = c.bits;
       if (c.label != null) d.label = c.label;
-      if (c.type === "IN") d.state = !!c.state;
+      if (c.type === "IN") { if (c.bits) d.vals = c.vals.slice(); else d.state = !!c.state; }
       if (c.defName) d.defName = c.defName;
       if (c.rot) d.rot = c.rot;
       return d;
@@ -352,6 +412,28 @@ function setAddrSel(circ, c, sel) {
   touchCircuit(circ);
 }
 
+/* Change the bit-count of a bus component (SPLITTER/MERGER) or a wide IN/OUT.
+   Pin counts/widths change, so every wire touching the component is dropped. */
+function setCompBits(circ, c, n) {
+  n = clampBits(n);
+  if (n === (c.bits || 1)) return;
+  switch (c.type) {
+    case "SPLITTER": c.bits = n; c.out = new Array(n).fill(false); break;
+    case "MERGER":   c.bits = n; c.out = [new Array(n).fill(false)]; break;
+    case "IN":
+      if (n > 1) { c.bits = n; c.vals = new Array(n).fill(false); c.out = [new Array(n).fill(false)]; delete c.state; }
+      else { delete c.bits; delete c.vals; c.state = false; c.out = [false]; }
+      break;
+    case "OUT":
+      if (n > 1) { c.bits = n; c.state = new Array(n).fill(false); }
+      else { delete c.bits; c.state = false; }
+      break;
+    default: return;
+  }
+  circ.wires = circ.wires.filter(w => w.to.c !== c.id && w.from.c !== c.id);
+  touchCircuit(circ);
+}
+
 function nextLabel(circ, type) {
   const used = new Set(circ.components.filter(c => c.type === type).map(c => c.label));
   const seq = type === "IN"
@@ -368,11 +450,15 @@ function nextLabel(circ, type) {
 
 function compSize(c) {
   switch (c.type) {
-    case "IN": case "OUT": return { w: 72, h: 32 };
+    case "IN": case "OUT": return { w: c.bits ? 104 : 72, h: 32 };
     case "CLK": return { w: 64, h: 32 };
     case "HIGH": case "LOW": return { w: 40, h: 28 };
     case "TRI": return { w: 76, h: 56 };
     case "JUNCTION": return { w: 12, h: 12 };
+    case "SPLITTER": case "MERGER": {
+      const n = Math.max(c.bits || 1, 1);
+      return { w: 48, h: Math.max(40, n * 13 + 14) };
+    }
     case "MUX": case "DEMUX": case "ENC": case "DEC": case "BENC": case "BDEC": {
       const n = Math.max(numInputsOf(c), numOutputsOf(c));
       return { w: 84, h: Math.max(56, n * 18 + 16) };

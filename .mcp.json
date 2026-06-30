@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "graphify": {
+      "type": "stdio",
+      "command": "node",
+      "args": [
+        "/root/Logic_simulator_web-app/.mcp/server.js"
+      ]
+    }
+  }
+}

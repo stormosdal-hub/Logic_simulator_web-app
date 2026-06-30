@@ -26,6 +26,26 @@ function signalColor(v) {
   return v ? COL.on : COL.off;
 }
 
+/* Aggregate colour for a value that may be a wide bus (array of trits):
+   amber if any bit floats, green if any bit is high, dim otherwise. */
+function busColor(v) {
+  if (!Array.isArray(v)) return signalColor(v);
+  if (v.some(b => b === null)) return COL.float;
+  return v.some(b => b === true) ? COL.on : COL.off;
+}
+
+/* Format a value for display. A scalar shows 0/1/Z; a wide bus shows hex
+   (bit 0 = LSB), or "Z" if any bit is floating. */
+function busHex(v) {
+  if (!Array.isArray(v)) return v === null || v === undefined ? "Z" : (v ? "1" : "0");
+  let n = 0;
+  for (let i = 0; i < v.length; i++) {
+    if (v[i] === null) return "Z";
+    if (v[i]) n += Math.pow(2, i);
+  }
+  return "0x" + n.toString(16).toUpperCase().padStart(Math.ceil(v.length / 4), "0");
+}
+
 function requestRender() { _needRender = true; }
 
 function sizeCanvas(cv) {
@@ -205,9 +225,22 @@ function drawWire(circ, w, sim) {
   if (!f || !t) return;
   const a = pinPos(f, "out", w.from.p), b = pinPos(t, "in", w.to.p);
   const raw = sim && f.out != null ? f.out[w.from.p] : false;
+  const selected = App.selection.some(s => s.kind === "wire" && s.obj === w);
+  const pts = wireRoutePoints(a, b, w.route);
+
+  // a bus wire (wide source pin) is drawn thick and labelled with its value
+  if (pinBits(f, "out", w.from.p) > 1) {
+    const hot = sim && Array.isArray(raw) && raw.some(v => v === true);
+    g2d.setLineDash([]);
+    g2d.strokeStyle = selected ? COL.sel : sim ? busColor(raw) : COL.wireEdit;
+    g2d.lineWidth = selected ? 5 : hot ? 4.6 : 4;
+    strokePolyline(pts);
+    if (sim) drawBusLabel(pts, raw);
+    return;
+  }
+
   const isZ = sim && raw === null;
   const on = sim && raw === true;
-  const selected = App.selection.some(s => s.kind === "wire" && s.obj === w);
   if (isZ) {
     g2d.strokeStyle = selected ? COL.sel : COL.float;
     g2d.setLineDash([5, 4]);
@@ -216,8 +249,23 @@ function drawWire(circ, w, sim) {
     g2d.setLineDash([]);
   }
   g2d.lineWidth = selected ? 3.2 : on ? 2.4 : 2;
-  strokePolyline(wireRoutePoints(a, b, w.route));
+  strokePolyline(pts);
   g2d.setLineDash([]);
+}
+
+/* Small value chip drawn at a bus wire's midpoint. */
+function drawBusLabel(pts, raw) {
+  const mid = pts[Math.floor(pts.length / 2)];
+  const txt = busHex(raw);
+  g2d.font = "bold 9px Consolas, monospace";
+  g2d.textAlign = "center"; g2d.textBaseline = "middle";
+  const bw = g2d.measureText(txt).width + 7;
+  g2d.fillStyle = "rgba(21,26,33,0.85)";
+  roundRect(mid.x - bw / 2, mid.y - 7, bw, 14, 3);
+  g2d.fill();
+  const col = busColor(raw);
+  g2d.fillStyle = col === COL.off ? COL.dim : col;
+  g2d.fillText(txt, mid.x, mid.y + 0.5);
 }
 
 function drawWiringPreview() {
@@ -247,18 +295,22 @@ function drawPins(circ, c, sim) {
   const nIn = numInputsOf(c), nOut = numOutputsOf(c);
   for (let i = 0; i < nIn; i++) {
     const p = pinPos(c, "in", i);
-    drawPinDot(p, sim, sim ? pinInVal(circ, c, i) : false);
+    drawPinDot(p, sim, sim ? pinInVal(circ, c, i) : false, pinBits(c, "in", i) > 1);
   }
   for (let i = 0; i < nOut; i++) {
     const p = pinPos(c, "out", i);
     const ov = sim && c.out != null ? c.out[i] : false;
-    drawPinDot(p, sim, ov);
+    drawPinDot(p, sim, ov, pinBits(c, "out", i) > 1);
   }
 }
-function drawPinDot(p, sim, val) {
+function drawPinDot(p, sim, val, wide) {
+  const col = !sim ? "#94a6b8"
+    : Array.isArray(val) ? busColor(val)
+    : (val === null ? COL.float : (val ? COL.on : "#5b6877"));
+  g2d.fillStyle = col;
+  if (wide) { g2d.fillRect(p.x - 3.4, p.y - 3.4, 6.8, 6.8); return; }   // square stub = bus pin
   g2d.beginPath();
   g2d.arc(p.x, p.y, 3.6, 0, Math.PI * 2);
-  g2d.fillStyle = !sim ? "#94a6b8" : val === null ? COL.float : (val ? COL.on : "#5b6877");
   g2d.fill();
 }
 
@@ -317,6 +369,8 @@ function drawCompBody(circ, c, sim) {
     case "JUNCTION": drawJunctionComp(circ, c, sim); break;
     case "MUX": case "DEMUX": case "ENC": case "DEC": case "BENC": case "BDEC": drawAddrComp(circ, c, sim); break;
     case "MATRIX": drawMatrixComp(circ, c, sim); break;
+    case "SPLITTER": drawBusComp(circ, c, sim, true); break;
+    case "MERGER": drawBusComp(circ, c, sim, false); break;
     case "CUSTOM": drawChipComp(c, sim); break;
     default: drawGateComp(circ, c, sim);
   }
@@ -380,6 +434,8 @@ function drawInComp(c, sim) {
   roundRect(c.x, c.y, w, h, 6);
   g2d.fill(); g2d.stroke();
 
+  if (c.bits) { drawWideValue(c, w, h, sim && c.out ? c.out[0] : c.vals, sim); return; }
+
   // toggle indicator
   const ix = c.x + w - 26, iy = c.y + 7, iw = 18, ih = h - 14;
   g2d.fillStyle = sim ? (on ? COL.on : "#39424d") : "#39424d";
@@ -406,6 +462,8 @@ function drawOutComp(circ, c, sim) {
   roundRect(c.x, c.y, w, h, 6);
   g2d.fill(); g2d.stroke();
 
+  if (c.bits) { drawWideValue(c, w, h, sim ? c.state : new Array(c.bits).fill(false), sim); return; }
+
   // LED
   g2d.beginPath();
   g2d.arc(c.x + 16, c.y + h / 2, 7, 0, Math.PI * 2);
@@ -420,6 +478,24 @@ function drawOutComp(circ, c, sim) {
   g2d.font = "bold 12px Consolas, monospace";
   g2d.textAlign = "left"; g2d.textBaseline = "middle";
   g2d.fillText((floating ? "Z " : "") + (c.label || ""), c.x + 30, c.y + h / 2 + 0.5);
+}
+
+/* Shared body for a wide (bus) IN/OUT: a hex readout box plus a "label Nb" tag. */
+function drawWideValue(c, w, h, valArr, sim) {
+  const bw = 52, bx = c.x + w - bw - 5, by = c.y + 6, bh = h - 12;
+  g2d.fillStyle = "#39424d";
+  roundRect(bx, by, bw, bh, 4);
+  g2d.fill();
+  const col = busColor(valArr);
+  g2d.fillStyle = !sim ? "#9fb0c0" : (col === COL.off ? "#9fb0c0" : col);
+  g2d.font = "bold 11px Consolas, monospace";
+  g2d.textAlign = "center"; g2d.textBaseline = "middle";
+  g2d.fillText(busHex(valArr), bx + bw / 2, by + bh / 2 + 0.5);
+
+  g2d.fillStyle = COL.text;
+  g2d.font = "bold 10px Consolas, monospace";
+  g2d.textAlign = "left";
+  g2d.fillText((c.extDriven ? "▸" : "") + (c.label || "") + " " + c.bits + "b", c.x + 7, c.y + h / 2 + 0.5);
 }
 
 function drawClkComp(c, sim) {
@@ -682,6 +758,56 @@ function drawMatrixComp(circ, c, sim) {
   }
 }
 
+/* ---------------- bus splitter / merger ----------------
+   A narrow body with the wide bus pin on one side (thick lead) and the `bits`
+   individual 1-bit pins on the other. `splitting` true = SPLITTER (wide in,
+   bits out); false = MERGER (bits in, wide out). */
+function drawBusComp(circ, c, sim, splitting) {
+  const { w, h } = compSize(c);
+  const bx = c.x + 8, bw = w - 16;
+  g2d.fillStyle = COL.fill;
+  g2d.strokeStyle = COL.stroke;
+  g2d.lineWidth = 1.6;
+  roundRect(bx, c.y + 2, bw, h - 4, 4);
+  g2d.fill(); g2d.stroke();
+
+  // wide bus lead (thick) on the wide side
+  const wideKind = splitting ? "in" : "out";
+  const wp = pinPos(c, wideKind, 0);
+  const wideVal = splitting ? (sim ? busValue(circ, c, 0) : false) : (sim && c.out ? c.out[0] : false);
+  g2d.lineWidth = 4;
+  g2d.strokeStyle = sim ? busColor(wideVal) : COL.wireEdit;
+  g2d.beginPath(); g2d.moveTo(wp.x, wp.y); g2d.lineTo(splitting ? bx : bx + bw, wp.y); g2d.stroke();
+
+  // individual 1-bit leads + their bit index
+  const n = c.bits;
+  g2d.lineWidth = 2;
+  for (let i = 0; i < n; i++) {
+    const kind = splitting ? "out" : "in";
+    const p = pinPos(c, kind, i);
+    const v = splitting ? (sim && c.out ? c.out[i] : false) : (sim ? busValue(circ, c, i) : false);
+    g2d.strokeStyle = sim ? signalColor(v) : COL.wireEdit;
+    g2d.beginPath(); g2d.moveTo(splitting ? bx + bw : bx, p.y); g2d.lineTo(p.x, p.y); g2d.stroke();
+  }
+  g2d.fillStyle = "#a9c4dd";
+  g2d.font = "7px Consolas, monospace";
+  g2d.textAlign = splitting ? "right" : "left"; g2d.textBaseline = "middle";
+  for (let i = 0; i < n; i++) {
+    const p = pinPos(c, splitting ? "out" : "in", i);
+    g2d.fillText(i, splitting ? bx + bw - 2 : bx + 2, p.y);
+  }
+
+  // label
+  g2d.fillStyle = COL.dim;
+  g2d.font = "bold 8px 'Segoe UI', sans-serif";
+  g2d.textAlign = "center"; g2d.textBaseline = "middle";
+  g2d.save();
+  g2d.translate(c.x + w / 2, c.y + h / 2);
+  g2d.rotate(-Math.PI / 2);
+  g2d.fillText((splitting ? "SPLIT " : "MERGE ") + n, 0, 0);
+  g2d.restore();
+}
+
 /* ---------------- selection & overlays ---------------- */
 
 function drawSelection(circ, c) {
@@ -703,6 +829,12 @@ function drawSelection(circ, c) {
   if (canEdit() && App.selection.length === 1 && c.type === "MATRIX") {
     drawPmButtons(b.x, b.y - 26, c, "rows-", "rows+", "rows");
     drawPmButtons(b.x + b.w - 38, b.y - 26, c, "cols-", "cols+", "cols");
+  }
+  // bus components and IN/OUT: a "bits" ±-pair to set the bit-width
+  // (an IN/OUT at 1 bit is a normal pin; raising it makes it a bus pin)
+  const busAdjustable = isBus(c.type) || c.type === "IN" || c.type === "OUT";
+  if (canEdit() && App.selection.length === 1 && busAdjustable) {
+    drawPmButtons(b.x + b.w - 38, b.y - 26, c, "bits-", "bits+", "bits " + (c.bits || 1));
   }
 }
 
@@ -934,6 +1066,25 @@ function paintToolIcon(cv, item) {
       k.font = "bold 9px 'Segoe UI', sans-serif";
       k.textAlign = "center"; k.textBaseline = "middle";
       k.fillText(item.type, w / 2, h / 2);
+      break;
+    }
+    case "SPLITTER": case "MERGER": {
+      const splitting = item.type === "SPLITTER";
+      const cy = h / 2, bx = w / 2 - 4, bw = 8;
+      k.fillRect(bx, 4, bw, h - 8);
+      k.strokeRect(bx + 0.5, 4.5, bw - 1, h - 9);
+      k.lineWidth = 2.6;        // thick wide-bus lead
+      k.beginPath();
+      if (splitting) { k.moveTo(2, cy); k.lineTo(bx, cy); }
+      else { k.moveTo(w - 2, cy); k.lineTo(bx + bw, cy); }
+      k.stroke();
+      k.lineWidth = 1;          // thin per-bit leads
+      k.beginPath();
+      for (const yy of [h * 0.3, h * 0.5, h * 0.7]) {
+        if (splitting) { k.moveTo(bx + bw, yy); k.lineTo(w - 2, yy); }
+        else { k.moveTo(2, yy); k.lineTo(bx, yy); }
+      }
+      k.stroke();
       break;
     }
     case "MATRIX": {
