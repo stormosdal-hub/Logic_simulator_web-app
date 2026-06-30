@@ -643,7 +643,7 @@ function editWideInput(c) {
   const v = ((n % max) + max) % max;          // wrap into range
   pushHistory();
   for (let i = 0; i < c.bits; i++) c.vals[i] = Math.floor(v / Math.pow(2, i)) % 2 === 1;
-  settle();
+  settleFrom([c]);   // only this wide input changed — re-settle its fan-out cone
   timelineRecord();
   afterSimChange();
 }

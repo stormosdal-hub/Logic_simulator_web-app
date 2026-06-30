@@ -3,11 +3,13 @@
    engine.js — simulation, clock, history, truth tables and
    boolean expression derivation.
 
-   Simulation model: every gate output is state. The circuit is
-   relaxed with repeated Gauss-Seidel passes until no value
-   changes; feedback loops (latches) keep their state between
-   passes, oscillating circuits hit the pass limit and are
-   flagged "unstable".
+   Simulation model: event-driven relaxation. Every component
+   output is state. settle() flattens the whole hierarchy into a
+   work-list, seeds every component once, then re-evaluates ONLY
+   the fan-out of components whose outputs actually change, driving
+   the circuit to a fixed point. Feedback loops (latches) keep their
+   state between settles; a component that re-evaluates past a limit
+   (an oscillator that never converges) flags the circuit "unstable".
    ============================================================ */
 
 const Sim = {
@@ -20,6 +22,8 @@ const Sim = {
   history: [],
   unstable: false,
   shortCircuit: false, // two+ outputs driving one wire with conflicting values
+  lastEvals: 0,        // component evaluations in the last settle() (event-driven cost)
+  graphEpoch: 0,       // bumped by touchCircuit; invalidates the cached eval-graph
 };
 function simFreq() { return Math.pow(2, Sim.freqExp); }
 
@@ -167,102 +171,198 @@ function detectShortsIn(circ) {
   }
 }
 
-function passCircuit(circ) {
-  let changed = false;
-  for (const c of circ.components) {
-    switch (c.type) {
-      case "IN": {
-        // extValue may be null (a floating bus driving a chip pin) — keep it
-        // so Hi-Z propagates into custom chips. A wide IN drives an array.
-        const v = c.extDriven ? c.extValue : (c.bits ? c.vals : c.state);
-        if (!bitEq(c.out[0], v)) { c.out[0] = copyVal(v); changed = true; }
-        break;
+/* Evaluate ONE component from its current inputs, writing its own outputs
+   (c.out / c.state) in place. Returns true if any output value changed.
+   It reads other components only through busValue/inputVals, so it is
+   order-independent — the work-list in settle() drives it to a fixed point.
+   CUSTOM is intentionally a no-op here: a chip's inner circuit lives in the
+   same flattened work-list, so its boundary is bridged directly in settle(). */
+function evalComp(circ, c) {
+  switch (c.type) {
+    case "IN": {
+      // extValue may be null (a floating bus driving a chip pin) — keep it
+      // so Hi-Z propagates into custom chips. A wide IN drives an array.
+      const v = c.extDriven ? c.extValue : (c.bits ? c.vals : c.state);
+      if (!bitEq(c.out[0], v)) { c.out[0] = copyVal(v); return true; }
+      return false;
+    }
+    case "CLK":  if (c.out[0] !== Sim.clock) { c.out[0] = Sim.clock; return true; } return false;
+    case "HIGH": if (c.out[0] !== true)  { c.out[0] = true;  return true; } return false;
+    case "LOW":  if (c.out[0] !== false) { c.out[0] = false; return true; } return false;
+    case "OUT": {
+      const v = inputVals(circ, c)[0];   // may be null (floating) or an array (wide)
+      if (!bitEq(c.state, v)) { c.state = copyVal(v); return true; }
+      return false;
+    }
+    case "SPLITTER": {
+      // fan the wide input's bits out to `bits` 1-bit outputs (Hi-Z preserved)
+      const w = busValue(circ, c, 0);
+      let changed = false;
+      for (let i = 0; i < c.bits; i++) {
+        const v = Array.isArray(w) ? w[i] : (i === 0 ? w : false);
+        if (c.out[i] !== v) { c.out[i] = v; changed = true; }
       }
-      case "CLK": {
-        const v = Sim.clock;
-        if (c.out[0] !== v) { c.out[0] = v; changed = true; }
-        break;
-      }
-      case "HIGH": if (c.out[0] !== true)  { c.out[0] = true;  changed = true; } break;
-      case "LOW":  if (c.out[0] !== false) { c.out[0] = false; changed = true; } break;
-      case "OUT": {
-        const v = inputVals(circ, c)[0];   // may be null (floating) or an array (wide)
-        if (!bitEq(c.state, v)) { c.state = copyVal(v); changed = true; }
-        break;
-      }
-      case "SPLITTER": {
-        // fan the wide input's bits out to `bits` 1-bit outputs (Hi-Z preserved)
-        const w = busValue(circ, c, 0);
-        for (let i = 0; i < c.bits; i++) {
-          const v = Array.isArray(w) ? w[i] : (i === 0 ? w : false);
-          if (c.out[i] !== v) { c.out[i] = v; changed = true; }
-        }
-        break;
-      }
-      case "MERGER": {
-        // gather the `bits` 1-bit inputs into one wide output value
-        const ins = inputVals(circ, c);
-        const v = new Array(c.bits);
-        for (let i = 0; i < c.bits; i++) v[i] = ins[i] === undefined ? false : ins[i];
-        if (!bitEq(c.out[0], v)) { c.out[0] = v; changed = true; }
-        break;
-      }
-      case "TRI": {
-        // inputs [data, enable]: pass data through when enabled, else Hi-Z
-        const ins = inputVals(circ, c);
-        const v = ins[1] ? ins[0] : null;
-        if (c.out[0] !== v) { c.out[0] = v; changed = true; }
-        break;
-      }
-      case "JUNCTION": {
-        // a bus tap: resolve everything wired into it, fan the value back out
-        const v = busValue(circ, c, 0);
-        if (c.out[0] !== v) { c.out[0] = v; changed = true; }
-        break;
-      }
-      case "MUX": case "DEMUX": case "ENC": case "DEC": case "BENC": case "BDEC": {
-        const outs = evalAddr(c, inputVals(circ, c));
-        for (let i = 0; i < outs.length; i++)
-          if (c.out[i] !== outs[i]) { c.out[i] = outs[i]; changed = true; }
-        break;
-      }
-      case "MATRIX": break;   // display sink — no outputs; lit state derived in render
-      case "CUSTOM": {
-        const ins = inputVals(circ, c);
-        for (let i = 0; i < c.inputComps.length; i++) {
-          const ic = c.inputComps[i];
-          if (!bitEq(ic.extValue, ins[i])) { ic.extValue = copyVal(ins[i]); changed = true; }
-        }
-        if (passCircuit(c.circuit)) changed = true;
-        for (let i = 0; i < c.outputComps.length; i++) {
-          const oc = c.outputComps[i];
-          const v = oc.bits ? oc.state : !!oc.state;   // wide output passes its array through
-          if (!bitEq(c.out[i], v)) { c.out[i] = copyVal(v); changed = true; }
-        }
-        break;
-      }
-      default: { // gate
-        const v = evalGate(c.type, inputVals(circ, c));
-        if (c.out[0] !== v) { c.out[0] = v; changed = true; }
-      }
+      return changed;
+    }
+    case "MERGER": {
+      // gather the `bits` 1-bit inputs into one wide output value
+      const ins = inputVals(circ, c);
+      const v = new Array(c.bits);
+      for (let i = 0; i < c.bits; i++) v[i] = ins[i] === undefined ? false : ins[i];
+      if (!bitEq(c.out[0], v)) { c.out[0] = v; return true; }
+      return false;
+    }
+    case "TRI": {
+      // inputs [data, enable]: pass data through when enabled, else Hi-Z
+      const ins = inputVals(circ, c);
+      const v = ins[1] ? ins[0] : null;
+      if (c.out[0] !== v) { c.out[0] = v; return true; }
+      return false;
+    }
+    case "JUNCTION": {
+      // a bus tap: resolve everything wired into it, fan the value back out
+      const v = busValue(circ, c, 0);
+      if (c.out[0] !== v) { c.out[0] = v; return true; }
+      return false;
+    }
+    case "MUX": case "DEMUX": case "ENC": case "DEC": case "BENC": case "BDEC": {
+      const outs = evalAddr(c, inputVals(circ, c));
+      let changed = false;
+      for (let i = 0; i < outs.length; i++)
+        if (c.out[i] !== outs[i]) { c.out[i] = outs[i]; changed = true; }
+      return changed;
+    }
+    case "MATRIX": return false;   // display sink — no outputs; lit state derived in render
+    case "CUSTOM": return false;   // bridged in settle() — its inner comps are in the work-list
+    default: { // gate
+      const v = evalGate(c.type, inputVals(circ, c));
+      if (c.out[0] !== v) { c.out[0] = v; return true; }
+      return false;
     }
   }
-  return changed;
 }
 
-function settle() {
-  Sim.unstable = false;
-  for (let i = 0; i < 800; i++) {
-    if (!passCircuit(App.topCircuit)) {
-      Sim.shortCircuit = false;
-      detectShortsIn(App.topCircuit);
-      return true;
+/* Flatten the whole hierarchy (top circuit + every chip's inner circuit) into
+   one list of circuits, depth-first. The same component objects persist across
+   settles, so a chip's inner gates carry their latched state between calls. */
+function collectCircuits(top) {
+  const out = [];
+  (function rec(circ) {
+    out.push(circ);
+    for (const c of circ.components) if (c.circuit) rec(c.circuit);
+  })(top);
+  return out;
+}
+
+const OSC_LIMIT = 1000;   // a component re-evaluating this many times isn't converging
+
+/* Cached flattened eval-graph. Built across the whole hierarchy and reused
+   between settles — the topology only changes on a structural edit, which
+   bumps Sim.graphEpoch (via touchCircuit). The component VALUES change every
+   settle, but the graph (fan-out, bridges, home circuits) does not, so a hot
+   incremental settle never rebuilds it. */
+let _evalGraph = null;
+
+/* Build (or reuse) the eval-graph for the current top circuit:
+     comps     — every component, in seed order (depth-first across the hierarchy)
+     consumers — comp → [comps reading any of its outputs] (from wires)
+     bridgeUp  — a chip's inner OUT comp → { custom, pin } (output boundary)
+     homeCirc  — comp → the circuit it lives in (to resolve its inputs)
+     clocks    — every CLK comp (the seeds for a clock edge) */
+function evalGraph() {
+  if (_evalGraph && _evalGraph.epoch === Sim.graphEpoch && _evalGraph.top === App.topCircuit)
+    return _evalGraph;
+  const circuits = collectCircuits(App.topCircuit);
+  const comps = [], clocks = [];
+  const consumers = new Map(), bridgeUp = new Map(), homeCirc = new Map();
+  for (const circ of circuits) {
+    for (const c of circ.components) {
+      comps.push(c);
+      homeCirc.set(c, circ);
+      if (c.type === "CLK") clocks.push(c);
+      if (c.type === "CUSTOM")
+        for (let i = 0; i < c.outputComps.length; i++) bridgeUp.set(c.outputComps[i], { custom: c, pin: i });
+    }
+    for (const w of circ.wires) {
+      const src = compById(circ, w.from.c), dst = compById(circ, w.to.c);
+      if (!src || !dst) continue;
+      let arr = consumers.get(src);
+      if (!arr) consumers.set(src, arr = []);
+      if (arr.indexOf(dst) < 0) arr.push(dst);
     }
   }
-  Sim.unstable = true;
+  _evalGraph = { epoch: Sim.graphEpoch, top: App.topCircuit, comps, clocks, consumers, bridgeUp, homeCirc };
+  return _evalGraph;
+}
+
+/* Drive the work-list to a fixed point starting from `seeds`. Evaluate a
+   component; if its output changed, enqueue its consumers (its fan-out).
+   CUSTOM boundaries are bridged as ordinary edges:
+     • down — a chip's resolved input pin drives its inner IN's extValue;
+     • up   — an inner OUT's value drives the chip's c.out, whose change then
+              fans out to the chip's consumers in the parent circuit.
+   A component re-evaluating past OSC_LIMIT marks the run unstable.
+   Returns { evals, unstable }. */
+function runWorklist(graph, seeds) {
+  const { consumers, bridgeUp, homeCirc } = graph;
+  const queue = [], queued = new Set(), counts = new Map();
+  const enqueue = c => { if (c && !queued.has(c)) { queued.add(c); queue.push(c); } };
+  const fanout = c => { const cs = consumers.get(c); if (cs) for (const d of cs) enqueue(d); };
+  for (const c of seeds) enqueue(c);
+
+  let evals = 0, head = 0, unstable = false;
+  while (head < queue.length) {
+    const c = queue[head++];
+    queued.delete(c);
+    const n = (counts.get(c) || 0) + 1;
+    counts.set(c, n);
+    evals++;
+    if (n > OSC_LIMIT) { unstable = true; break; }
+
+    if (c.type === "CUSTOM") {
+      const ins = inputVals(homeCirc.get(c), c);
+      for (let i = 0; i < c.inputComps.length; i++) {
+        const ic = c.inputComps[i];
+        if (!bitEq(ic.extValue, ins[i])) { ic.extValue = copyVal(ins[i]); enqueue(ic); }
+      }
+      continue;
+    }
+
+    if (evalComp(homeCirc.get(c), c)) {
+      const b = bridgeUp.get(c);   // an inner OUT that is a chip output pin: bridge UP
+      if (b) {
+        const ov = c.bits ? c.state : !!c.state;   // wide output passes its array through
+        if (!bitEq(b.custom.out[b.pin], ov)) { b.custom.out[b.pin] = copyVal(ov); fanout(b.custom); }
+      }
+      fanout(c);
+    }
+  }
+  return { evals, unstable };
+}
+
+function finishSettle(r) {
+  Sim.unstable = r.unstable;
+  Sim.lastEvals = r.evals;
   Sim.shortCircuit = false;
   detectShortsIn(App.topCircuit);
-  return false;
+  return !Sim.unstable;
+}
+
+/* Full (cold) settle: re-evaluate from every component. Use after structural
+   edits, mode changes, restores, or any time the prior state may be stale —
+   it makes no assumption about what changed. */
+function settle() {
+  const graph = evalGraph();
+  return finishSettle(runWorklist(graph, graph.comps));
+}
+
+/* Incremental settle: re-evaluate only the fan-out cone of `seeds`. Valid ONLY
+   when the rest of the circuit is already at a fixed point (the normal case
+   after a prior settle) and just these source components' values changed — e.g.
+   one toggled input or a clock edge. Structural changes must use settle(). */
+function settleFrom(seeds) {
+  const graph = evalGraph();
+  return finishSettle(runWorklist(graph, seeds));
 }
 
 /* ---------------- state snapshots / history ---------------- */
@@ -328,7 +428,7 @@ function clockTick() {
   pushHistory();
   Sim.clock = !Sim.clock;
   if (Sim.clock) Sim.cycles++;
-  settle();
+  settleFrom(evalGraph().clocks);   // only the clock lines changed — re-settle their cone
   timelineRecord();
   afterSimChange();
 }
@@ -356,7 +456,7 @@ function setFreqExp(v) {
 function toggleInput(c) {
   pushHistory();
   c.state = !c.state;
-  settle();
+  settleFrom([c]);   // only this input changed — re-settle its fan-out cone
   timelineRecord();
   afterSimChange();
 }

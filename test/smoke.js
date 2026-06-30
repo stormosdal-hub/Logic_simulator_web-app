@@ -7,7 +7,7 @@ const ctx = vm.createContext({ console });
 for (const f of ["model.js", "builtins.js", "engine.js"]) {
   vm.runInContext(fs.readFileSync(path.join(__dirname, "..", "js", f), "utf8"), ctx, { filename: f });
 }
-const T = vm.runInContext("({App, Sim, Defs, Timeline, makeComp, newCircuit, setTopCircuit, addWire, addWireBus, wiresTo, busValue, settle, registerBuiltinDefs, sortedPinComps, computeTruthTable, topOutputExprs, exprTreeForOutputPin, exprToText, exprToHtml, ctxForViewStack, clockTick, stepBack, snapshotState, restoreState, wireTo, compById, defaultWireRoute, wireRoutePoints, pinPos, pinPosLogical, compBox, rotateAround, numInputsOf, numOutputsOf, setAddrSel, evalAddr, setMatrixSize, matrixLit, pinBits, setCompBits, resolveBit, bitEq, createDefFromCircuit, serializeCircuit})", ctx);
+const T = vm.runInContext("({App, Sim, Defs, Timeline, makeComp, newCircuit, setTopCircuit, addWire, addWireBus, wiresTo, busValue, settle, settleFrom, registerBuiltinDefs, sortedPinComps, computeTruthTable, topOutputExprs, exprTreeForOutputPin, exprToText, exprToHtml, ctxForViewStack, clockTick, stepBack, snapshotState, restoreState, wireTo, compById, defaultWireRoute, wireRoutePoints, pinPos, pinPosLogical, compBox, rotateAround, numInputsOf, numOutputsOf, setAddrSel, evalAddr, setMatrixSize, matrixLit, pinBits, setCompBits, resolveBit, bitEq, createDefFromCircuit, serializeCircuit})", ctx);
 
 let pass = 0, fail = 0;
 function check(name, cond) {
@@ -982,6 +982,128 @@ T.registerBuiltinDefs();
   const live = T.makeComp("IN", 0, 0, { label: "A", bits: aD.bits, vals: aD.vals });
   check("deserialized wide IN width", T.pinBits(live, "out", 0) === 6);
   check("deserialized wide IN vals restored", live.vals[1] === true && live.vals[2] === false);
+}
+
+/* ---- 46. event-driven settle: deep chain costs O(N), not O(N*depth) ---- */
+{
+  const N = 300;
+  const c = T.newCircuit();
+  T.setTopCircuit(c);
+  const a = T.makeComp("IN", 0, 0, { label: "A" });
+  c.components.push(a);
+  let prev = a;
+  for (let i = 0; i < N; i++) {
+    const b = T.makeComp("BUF", (i + 1) * 10, 0);
+    c.components.push(b);
+    T.addWire(c, prev, 0, b, 0);
+    prev = b;
+  }
+  const q = T.makeComp("OUT", (N + 1) * 10, 0, { label: "Q" });
+  c.components.push(q);
+  T.addWire(c, prev, 0, q, 0);
+  const comps = c.components.length;   // IN + N BUF + OUT
+
+  a.state = true; T.settle();
+  check("deep chain propagates value", q.state === true);
+  check("deep chain is stable", T.Sim.unstable === false);
+  // event-driven: each component settles in ~1 evaluation (it's a topological
+  // chain). The old full-pass relaxation would cost ~comps*depth evaluations.
+  check("deep chain settles in O(N) evals (event-driven)", T.Sim.lastEvals < comps * 3);
+
+  // a single input flip re-settles in O(N) too (each settle re-seeds + drains)
+  a.state = false; T.settle();
+  check("input flip re-settles O(N)", T.Sim.lastEvals < comps * 3 && q.state === false);
+}
+
+/* ---- 47. event-driven settle still reaches feedback fixed points ---- */
+{
+  // a gated SR latch built inline (two cross-coupled NORs) must hold state
+  const c = T.newCircuit();
+  T.setTopCircuit(c);
+  const s = T.makeComp("IN", 0, 0, { label: "S" });
+  const r = T.makeComp("IN", 0, 100, { label: "R" });
+  const n1 = T.makeComp("NOR", 100, 0);
+  const n2 = T.makeComp("NOR", 100, 100);
+  const q = T.makeComp("OUT", 250, 0, { label: "Q" });
+  c.components.push(s, r, n1, n2, q);
+  T.addWire(c, r, 0, n1, 0);
+  T.addWire(c, n2, 0, n1, 1);   // cross-couple
+  T.addWire(c, s, 0, n2, 0);
+  T.addWire(c, n1, 0, n2, 1);   // cross-couple
+  T.addWire(c, n1, 0, q, 0);
+  s.state = true; r.state = false; T.settle();
+  check("inline NOR latch set -> Q=1", q.state === true);
+  check("inline NOR latch stable on set", T.Sim.unstable === false);
+  s.state = false; T.settle();
+  check("inline NOR latch holds Q=1", q.state === true);
+  r.state = true; T.settle();
+  check("inline NOR latch reset -> Q=0", q.state === false);
+  r.state = false; T.settle();
+  check("inline NOR latch holds Q=0", q.state === false);
+}
+
+/* ---- 48. settleFrom re-settles only the changed input's cone ---- */
+{
+  const D = 100;
+  const c = T.newCircuit();
+  T.setTopCircuit(c);
+  // two independent buffer chains A and B
+  function chain(label, y) {
+    const inp = T.makeComp("IN", 0, y, { label });
+    c.components.push(inp);
+    let prev = inp;
+    for (let i = 0; i < D; i++) { const b = T.makeComp("BUF", (i + 1) * 10, y); c.components.push(b); T.addWire(c, prev, 0, b, 0); prev = b; }
+    const out = T.makeComp("OUT", (D + 1) * 10, y, { label: label + "q" });
+    c.components.push(out);
+    T.addWire(c, prev, 0, out, 0);
+    return { inp, out };
+  }
+  const A = chain("A", 0), B = chain("B", 500);
+  const total = c.components.length;   // 2*(1+D+1)
+  A.inp.state = false; B.inp.state = true;
+  T.settle();   // full cold settle seeds everything
+  check("settleFrom setup: A.q=0", A.out.state === false);
+  check("settleFrom setup: B.q=1", B.out.state === true);
+
+  // flip only A and re-settle from just that input
+  A.inp.state = true;
+  T.settleFrom([A.inp]);
+  check("settleFrom propagates A", A.out.state === true);
+  check("settleFrom leaves B untouched", B.out.state === true);
+  // only chain A's ~D+2 comps were evaluated, not chain B's half
+  check("settleFrom is local (cone only)", T.Sim.lastEvals <= D + 5 && T.Sim.lastEvals < total);
+
+  // incremental result must match a full re-settle
+  const ev = T.Sim.lastEvals;
+  T.settle();
+  check("settleFrom matches full settle (A.q)", A.out.state === true);
+  check("settleFrom matches full settle (B.q)", B.out.state === true);
+  check("full settle touched the whole circuit", T.Sim.lastEvals > ev);
+}
+
+/* ---- 49. clockTick (incremental clock edge) drives a stateful counter ---- */
+{
+  const c = T.newCircuit();
+  T.setTopCircuit(c);
+  const clk = T.makeComp("CLK", 0, 0);
+  const cnt = T.makeComp("CUSTOM", 100, 0, { defName: "4-bit Counter" });
+  const outs = [];
+  for (let i = 0; i < 4; i++) { const o = T.makeComp("OUT", 300, i * 50, { label: "Q" + i }); outs.push(o); }
+  c.components.push(clk, cnt, ...outs);
+  T.addWire(c, clk, 0, cnt, 0);
+  for (let i = 0; i < 4; i++) T.addWire(c, cnt, i, outs[i], 0);
+  T.Sim.clock = false; T.settle();
+  const val = () => outs.reduce((a, o, i) => a + (o.state ? 1 << i : 0), 0);
+  const start = val();
+  T.App.mode = "sim";
+  let good = true;
+  for (let k = 1; k <= 16; k++) {
+    T.clockTick();   // rising edge (settleFrom on the clock cone, inside a CUSTOM)
+    T.clockTick();   // falling edge
+    if (val() !== (start + k) % 16) { good = false; console.log("   clockTick counter wrong at step " + k + ": " + val()); break; }
+  }
+  T.App.mode = "edit";
+  check("clockTick drives counter via incremental settle", good);
 }
 
 console.log("\n" + pass + " passed, " + fail + " failed");

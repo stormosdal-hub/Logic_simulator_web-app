@@ -75,7 +75,11 @@ function splitCurCircuit() {
 /* ---------------- circuits ---------------- */
 
 function newCircuit() { return { components: [], wires: [], _maps: null }; }
-function touchCircuit(c) { c._maps = null; }
+/* Invalidate a circuit's lazy wire/id maps. Also bumps the global structural
+   epoch so the engine's cached eval-graph (built across the whole hierarchy)
+   rebuilds on the next settle. Guarded because model.js loads before engine.js
+   defines Sim — touchCircuit is never called during that load. */
+function touchCircuit(c) { c._maps = null; if (typeof Sim !== "undefined") Sim.graphEpoch++; }
 
 function getMaps(circ) {
   if (!circ._maps) {

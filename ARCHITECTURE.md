@@ -20,7 +20,7 @@ model**, the **engine** relaxes the circuit to a fixed point, and the
 
 ```
    DATA MODEL  ──(topology)──►   ENGINE   ──(values c.out)──►  RENDERER
-   owns the truth               settle / relaxation           paints pixels
+   owns the truth               settle / work-list            paints pixels
    (model.js)                   (engine.js)                   (render.js)
         ▲                            │                              ▲
         │                            ▼                              │
@@ -75,29 +75,58 @@ CUSTOM chips carry a deep-cloned live `circuit` via `instantiateData`
 
 ---
 
-## Engine — simulate by relaxation
+## Engine — simulate by event-driven relaxation
 
 **Files:** `engine.js` (primary), with sim-facing UI in `interact.js`/`ui.js`.
 
-The simulator uses **Gauss-Seidel relaxation**: no topological sort, no
-dependency analysis — just re-evaluate every component until nothing changes.
+The simulator relaxes to a fixed point, but **event-driven**: instead of
+re-evaluating every component every sweep, it re-evaluates only the components
+whose inputs may have changed. No topological sort is needed — the work-list
+discovers the evaluation order dynamically.
 
-**One sweep:** `passCircuit(circ)` (`engine.js:170`) walks `circ.components` in
-order and mutates `c.out[]` *in place*. Because it mutates in place, a component
-evaluated later in the same sweep reads the already-updated outputs of earlier
-ones (via `inputVals`/`busValue`) — that is the defining Gauss-Seidel property.
-Each component compares its new value to the stored one (`bitEq`) and sets
-`changed` if it differs. CUSTOM components recurse (`passCircuit(c.circuit)`) and
-bubble `changed` upward, so settlement is global across the whole hierarchy.
+**One component:** `evalComp(circ, c)` (`engine.js`) evaluates a single component
+from its current inputs (via `inputVals`/`busValue`), mutates its own `c.out[]`/
+`c.state` *in place*, and returns whether anything changed (`bitEq`). It is
+order-independent — it reads other components' stored outputs but writes only its
+own. CUSTOM is a deliberate no-op here (its boundary is bridged in `settle`).
 
-**The fixed-point loop:** `settle()` (`engine.js:253`) runs `passCircuit` up to
-**800 times**. The first sweep with no change means the network reached a fixed
-point → settled. 800 sweeps without quiescence → `Sim.unstable = true` (an
-oscillator). The cap is the non-convergence guard.
+**The work-list loop:** `runWorklist(graph, seeds)` (`engine.js`) seeds the given
+components into a queue and drains it: pop a comp, evaluate it, and if its output
+changed, enqueue its consumers (its fan-out). The queue empties at the fixed
+point. A deep chain therefore costs **O(cone)** evaluations (each comp settles in
+~1 eval), not the old **O(N×depth)** of full sweeps. `Sim.lastEvals` records the
+count.
 
-**Latches need no state machine.** `c.out[]` persists between sweeps, so a
-cross-coupled latch settles over a few passes with its state living implicitly
-in the output values.
+**Cached eval-graph.** The topology — `consumers` (comp → comps reading its
+outputs, from wires), `bridgeUp` (a chip's inner `OUT` → `{custom, pin}`),
+`homeCirc` (comp → its circuit), `comps` (seed order), `clocks` — only changes on
+a structural edit. `evalGraph()` builds it once and caches it, keyed on
+`Sim.graphEpoch` (bumped by `touchCircuit`) and `App.topCircuit`; component
+*values* change every settle but the graph does not, so a hot settle reuses it.
+
+**Two entry points share the loop.** `settle()` seeds **every** component (cold —
+no assumption about what changed: after structural edits, mode switches, restores,
+truth tables). `settleFrom(seeds)` seeds **only** the given components and
+re-settles their cone — valid only when the rest of the circuit is already at a
+fixed point. The hot paths take it: `toggleInput`→`[c]`, `editWideInput`→`[c]`,
+`clockTick`→`evalGraph().clocks`. Toggling one input of a 1600-component circuit
+re-settles ~200 components, not all 1600.
+
+**Hierarchy is bridged, not recursed.** A CUSTOM chip's inner components are in
+the same flattened work-list. When a chip is popped, its resolved input pins are
+pushed *down* into the inner `IN.extValue` (enqueuing those INs); when an inner
+`OUT` changes, `bridgeUp` pushes the value *up* into `custom.out[pin]`, whose
+change fans out to the chip's consumers in the parent circuit. So settlement is
+global across all levels with no nested `settle` call.
+
+**Non-convergence guard:** a component that re-evaluates more than `OSC_LIMIT`
+(1000) times in one settle is treated as oscillating → `Sim.unstable = true`.
+This is the event-driven analogue of the old 800-sweep cap, but it trips on the
+*specific* component that won't converge rather than on a global sweep count.
+
+**Latches need no state machine.** `c.out[]`/`c.state` persist between settles,
+so a cross-coupled latch reaches its held fixed point with state living
+implicitly in the output values; a fresh `settle()` re-seeds from those values.
 
 **State & time travel.** `Sim` (`engine.js:13`) holds sim flags. `snapshotState`/
 `restoreState` (`engine.js:277`/`290`) serialize all component values;
@@ -203,7 +232,7 @@ the passport that lets it cross the boundary toward whoever consumes it.
 edit/input → mutate model → touchCircuit (invalidate _maps)
                           → afterStructChange → settle()        [if simulating]
                                                   │
-              passCircuit ×N (Gauss-Seidel, in-place)
+              evalComp per dirty component (work-list, event-driven)
                                                   │
               busValue/resolveBit resolve tri-state buses
                                                   │

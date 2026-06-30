@@ -211,7 +211,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "js_builtins",
-      "community": 5,
+      "community": 3,
       "norm_label": "builtins.js"
     },
     {
@@ -221,7 +221,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "js_builtins_definebuiltin",
-      "community": 5,
+      "community": 3,
       "norm_label": "definebuiltin()"
     },
     {
@@ -231,7 +231,7 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "js_builtins_registerbuiltindefs",
-      "community": 5,
+      "community": 3,
       "norm_label": "registerbuiltindefs()"
     },
     {
@@ -258,7 +258,7 @@
       "label": "simFreq()",
       "file_type": "code",
       "source_file": "js/engine.js",
-      "source_location": "L28",
+      "source_location": "L27",
       "_origin": "ast",
       "id": "js_engine_simfreq",
       "community": 4,
@@ -268,7 +268,7 @@
       "label": "evalGate()",
       "file_type": "code",
       "source_file": "js/engine.js",
-      "source_location": "L32",
+      "source_location": "L31",
       "_origin": "ast",
       "id": "js_engine_evalgate",
       "community": 4,
@@ -278,7 +278,7 @@
       "label": "evalAddr()",
       "file_type": "code",
       "source_file": "js/engine.js",
-      "source_location": "L52",
+      "source_location": "L51",
       "_origin": "ast",
       "id": "js_engine_evaladdr",
       "community": 4,
@@ -288,7 +288,7 @@
       "label": "inputVals()",
       "file_type": "code",
       "source_file": "js/engine.js",
-      "source_location": "L97",
+      "source_location": "L96",
       "_origin": "ast",
       "id": "js_engine_inputvals",
       "community": 4,
@@ -298,17 +298,17 @@
       "label": "resolveBit()",
       "file_type": "code",
       "source_file": "js/engine.js",
-      "source_location": "L112",
+      "source_location": "L111",
       "_origin": "ast",
       "id": "js_engine_resolvebit",
-      "community": 1,
+      "community": 4,
       "norm_label": "resolvebit()"
     },
     {
       "label": "bitEq()",
       "file_type": "code",
       "source_file": "js/engine.js",
-      "source_location": "L121",
+      "source_location": "L120",
       "_origin": "ast",
       "id": "js_engine_biteq",
       "community": 4,
@@ -318,7 +318,7 @@
       "label": "copyVal()",
       "file_type": "code",
       "source_file": "js/engine.js",
-      "source_location": "L129",
+      "source_location": "L128",
       "_origin": "ast",
       "id": "js_engine_copyval",
       "community": 4,
@@ -328,27 +328,27 @@
       "label": "busValue()",
       "file_type": "code",
       "source_file": "js/engine.js",
-      "source_location": "L131",
+      "source_location": "L130",
       "_origin": "ast",
       "id": "js_engine_busvalue",
-      "community": 1,
+      "community": 4,
       "norm_label": "busvalue()"
     },
     {
       "label": "matrixLit()",
       "file_type": "code",
       "source_file": "js/engine.js",
-      "source_location": "L148",
+      "source_location": "L147",
       "_origin": "ast",
       "id": "js_engine_matrixlit",
-      "community": 1,
+      "community": 4,
       "norm_label": "matrixlit()"
     },
     {
       "label": "busConflict()",
       "file_type": "code",
       "source_file": "js/engine.js",
-      "source_location": "L153",
+      "source_location": "L152",
       "_origin": "ast",
       "id": "js_engine_busconflict",
       "community": 4,
@@ -358,7 +358,7 @@
       "label": "detectShortsIn()",
       "file_type": "code",
       "source_file": "js/engine.js",
-      "source_location": "L165",
+      "source_location": "L164",
       "_origin": "ast",
       "id": "js_engine_detectshortsin",
       "community": 4,
@@ -368,7 +368,7 @@
       "label": "evalComp()",
       "file_type": "code",
       "source_file": "js/engine.js",
-      "source_location": "L180",
+      "source_location": "L179",
       "_origin": "ast",
       "id": "js_engine_evalcomp",
       "community": 4,
@@ -378,67 +378,27 @@
       "label": "collectCircuits()",
       "file_type": "code",
       "source_file": "js/engine.js",
-      "source_location": "L248",
+      "source_location": "L247",
       "_origin": "ast",
       "id": "js_engine_collectcircuits",
       "community": 4,
       "norm_label": "collectcircuits()"
     },
     {
-      "label": "evalGraph()",
-      "file_type": "code",
-      "source_file": "js/engine.js",
-      "source_location": "L272",
-      "_origin": "ast",
-      "id": "js_engine_evalgraph",
-      "community": 4,
-      "norm_label": "evalgraph()"
-    },
-    {
-      "label": "runWorklist()",
-      "file_type": "code",
-      "source_file": "js/engine.js",
-      "source_location": "L306",
-      "_origin": "ast",
-      "id": "js_engine_runworklist",
-      "community": 4,
-      "norm_label": "runworklist()"
-    },
-    {
-      "label": "finishSettle()",
-      "file_type": "code",
-      "source_file": "js/engine.js",
-      "source_location": "L343",
-      "_origin": "ast",
-      "id": "js_engine_finishsettle",
-      "community": 4,
-      "norm_label": "finishsettle()"
-    },
-    {
       "label": "settle()",
       "file_type": "code",
       "source_file": "js/engine.js",
-      "source_location": "L354",
+      "source_location": "L267",
       "_origin": "ast",
       "id": "js_engine_settle",
       "community": 4,
       "norm_label": "settle()"
     },
     {
-      "label": "settleFrom()",
-      "file_type": "code",
-      "source_file": "js/engine.js",
-      "source_location": "L363",
-      "_origin": "ast",
-      "id": "js_engine_settlefrom",
-      "community": 4,
-      "norm_label": "settlefrom()"
-    },
-    {
       "label": "walkAllComps()",
       "file_type": "code",
       "source_file": "js/engine.js",
-      "source_location": "L370",
+      "source_location": "L333",
       "_origin": "ast",
       "id": "js_engine_walkallcomps",
       "community": 4,
@@ -448,7 +408,7 @@
       "label": "snapshotState()",
       "file_type": "code",
       "source_file": "js/engine.js",
-      "source_location": "L377",
+      "source_location": "L340",
       "_origin": "ast",
       "id": "js_engine_snapshotstate",
       "community": 4,
@@ -458,7 +418,7 @@
       "label": "restoreState()",
       "file_type": "code",
       "source_file": "js/engine.js",
-      "source_location": "L390",
+      "source_location": "L353",
       "_origin": "ast",
       "id": "js_engine_restorestate",
       "community": 4,
@@ -468,7 +428,7 @@
       "label": "pushHistory()",
       "file_type": "code",
       "source_file": "js/engine.js",
-      "source_location": "L403",
+      "source_location": "L366",
       "_origin": "ast",
       "id": "js_engine_pushhistory",
       "community": 4,
@@ -478,7 +438,7 @@
       "label": "afterSimChange()",
       "file_type": "code",
       "source_file": "js/engine.js",
-      "source_location": "L410",
+      "source_location": "L373",
       "_origin": "ast",
       "id": "js_engine_aftersimchange",
       "community": 4,
@@ -488,17 +448,17 @@
       "label": "afterStructChange()",
       "file_type": "code",
       "source_file": "js/engine.js",
-      "source_location": "L422",
+      "source_location": "L385",
       "_origin": "ast",
       "id": "js_engine_afterstructchange",
-      "community": 3,
+      "community": 2,
       "norm_label": "afterstructchange()"
     },
     {
       "label": "clockTick()",
       "file_type": "code",
       "source_file": "js/engine.js",
-      "source_location": "L427",
+      "source_location": "L390",
       "_origin": "ast",
       "id": "js_engine_clocktick",
       "community": 4,
@@ -508,7 +468,7 @@
       "label": "stepBack()",
       "file_type": "code",
       "source_file": "js/engine.js",
-      "source_location": "L436",
+      "source_location": "L399",
       "_origin": "ast",
       "id": "js_engine_stepback",
       "community": 4,
@@ -518,7 +478,7 @@
       "label": "setRunning()",
       "file_type": "code",
       "source_file": "js/engine.js",
-      "source_location": "L445",
+      "source_location": "L408",
       "_origin": "ast",
       "id": "js_engine_setrunning",
       "community": 4,
@@ -528,7 +488,7 @@
       "label": "setFreqExp()",
       "file_type": "code",
       "source_file": "js/engine.js",
-      "source_location": "L451",
+      "source_location": "L414",
       "_origin": "ast",
       "id": "js_engine_setfreqexp",
       "community": 4,
@@ -538,7 +498,7 @@
       "label": "toggleInput()",
       "file_type": "code",
       "source_file": "js/engine.js",
-      "source_location": "L456",
+      "source_location": "L419",
       "_origin": "ast",
       "id": "js_engine_toggleinput",
       "community": 4,
@@ -548,7 +508,7 @@
       "label": "simReset()",
       "file_type": "code",
       "source_file": "js/engine.js",
-      "source_location": "L464",
+      "source_location": "L427",
       "_origin": "ast",
       "id": "js_engine_simreset",
       "community": 4,
@@ -558,7 +518,7 @@
       "label": "enterSim()",
       "file_type": "code",
       "source_file": "js/engine.js",
-      "source_location": "L478",
+      "source_location": "L441",
       "_origin": "ast",
       "id": "js_engine_entersim",
       "community": 4,
@@ -568,7 +528,7 @@
       "label": "exitSim()",
       "file_type": "code",
       "source_file": "js/engine.js",
-      "source_location": "L487",
+      "source_location": "L450",
       "_origin": "ast",
       "id": "js_engine_exitsim",
       "community": 4,
@@ -578,7 +538,7 @@
       "label": "computeTruthTable()",
       "file_type": "code",
       "source_file": "js/engine.js",
-      "source_location": "L495",
+      "source_location": "L458",
       "_origin": "ast",
       "id": "js_engine_computetruthtable",
       "community": 4,
@@ -588,7 +548,7 @@
       "label": "applyTTRow()",
       "file_type": "code",
       "source_file": "js/engine.js",
-      "source_location": "L525",
+      "source_location": "L488",
       "_origin": "ast",
       "id": "js_engine_applyttrow",
       "community": 4,
@@ -598,7 +558,7 @@
       "label": "ctxForViewStack()",
       "file_type": "code",
       "source_file": "js/engine.js",
-      "source_location": "L535",
+      "source_location": "L498",
       "_origin": "ast",
       "id": "js_engine_ctxforviewstack",
       "community": 4,
@@ -608,7 +568,7 @@
       "label": "escHtml()",
       "file_type": "code",
       "source_file": "js/engine.js",
-      "source_location": "L543",
+      "source_location": "L506",
       "_origin": "ast",
       "id": "js_engine_eschtml",
       "community": 4,
@@ -618,17 +578,17 @@
       "label": "exprTreeForOutputPin()",
       "file_type": "code",
       "source_file": "js/engine.js",
-      "source_location": "L552",
+      "source_location": "L515",
       "_origin": "ast",
       "id": "js_engine_exprtreeforoutputpin",
-      "community": 3,
+      "community": 4,
       "norm_label": "exprtreeforoutputpin()"
     },
     {
       "label": "exprToText()",
       "file_type": "code",
       "source_file": "js/engine.js",
-      "source_location": "L634",
+      "source_location": "L597",
       "_origin": "ast",
       "id": "js_engine_exprtotext",
       "community": 4,
@@ -638,7 +598,7 @@
       "label": "exprToHtml()",
       "file_type": "code",
       "source_file": "js/engine.js",
-      "source_location": "L646",
+      "source_location": "L609",
       "_origin": "ast",
       "id": "js_engine_exprtohtml",
       "community": 4,
@@ -648,17 +608,17 @@
       "label": "topOutputExprs()",
       "file_type": "code",
       "source_file": "js/engine.js",
-      "source_location": "L654",
+      "source_location": "L617",
       "_origin": "ast",
       "id": "js_engine_topoutputexprs",
-      "community": 5,
+      "community": 3,
       "norm_label": "topoutputexprs()"
     },
     {
       "label": "Timeline",
       "file_type": "code",
       "source_file": "js/engine.js",
-      "source_location": "L673",
+      "source_location": "L636",
       "_origin": "ast",
       "id": "js_engine_timeline",
       "community": 4,
@@ -668,7 +628,7 @@
       "label": "timelineSignals()",
       "file_type": "code",
       "source_file": "js/engine.js",
-      "source_location": "L675",
+      "source_location": "L638",
       "_origin": "ast",
       "id": "js_engine_timelinesignals",
       "community": 5,
@@ -678,7 +638,7 @@
       "label": "timelineRecord()",
       "file_type": "code",
       "source_file": "js/engine.js",
-      "source_location": "L684",
+      "source_location": "L647",
       "_origin": "ast",
       "id": "js_engine_timelinerecord",
       "community": 4,
@@ -891,7 +851,7 @@
       "source_location": "L442",
       "_origin": "ast",
       "id": "js_interact_addat",
-      "community": 3,
+      "community": 2,
       "norm_label": "addat()"
     },
     {
@@ -911,7 +871,7 @@
       "source_location": "L470",
       "_origin": "ast",
       "id": "js_interact_rotatecomp",
-      "community": 3,
+      "community": 2,
       "norm_label": "rotatecomp()"
     },
     {
@@ -951,7 +911,7 @@
       "source_location": "L514",
       "_origin": "ast",
       "id": "js_interact_deleteselection",
-      "community": 3,
+      "community": 2,
       "norm_label": "deleteselection()"
     },
     {
@@ -971,7 +931,7 @@
       "source_location": "L533",
       "_origin": "ast",
       "id": "js_interact_pasteclipboard",
-      "community": 3,
+      "community": 2,
       "norm_label": "pasteclipboard()"
     },
     {
@@ -1021,7 +981,7 @@
       "source_location": "L621",
       "_origin": "ast",
       "id": "js_interact_parsebusvalue",
-      "community": 2,
+      "community": 4,
       "norm_label": "parsebusvalue()"
     },
     {
@@ -1031,7 +991,7 @@
       "source_location": "L628",
       "_origin": "ast",
       "id": "js_interact_busvalstohex",
-      "community": 2,
+      "community": 5,
       "norm_label": "busvalstohex()"
     },
     {
@@ -1061,7 +1021,7 @@
       "source_location": "L676",
       "_origin": "ast",
       "id": "js_interact_dragwiresegment",
-      "community": 3,
+      "community": 2,
       "norm_label": "dragwiresegment()"
     },
     {
@@ -1071,7 +1031,7 @@
       "source_location": "L699",
       "_origin": "ast",
       "id": "js_interact_oncanvasdrop",
-      "community": 3,
+      "community": 2,
       "norm_label": "oncanvasdrop()"
     },
     {
@@ -1141,7 +1101,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "js_model_snap",
-      "community": 3,
+      "community": 2,
       "norm_label": "snap()"
     },
     {
@@ -1258,7 +1218,7 @@
       "label": "touchCircuit()",
       "file_type": "code",
       "source_file": "js/model.js",
-      "source_location": "L82",
+      "source_location": "L78",
       "_origin": "ast",
       "id": "js_model_touchcircuit",
       "community": 3,
@@ -1268,47 +1228,47 @@
       "label": "getMaps()",
       "file_type": "code",
       "source_file": "js/model.js",
-      "source_location": "L84",
+      "source_location": "L80",
       "_origin": "ast",
       "id": "js_model_getmaps",
-      "community": 3,
+      "community": 4,
       "norm_label": "getmaps()"
     },
     {
       "label": "compById()",
       "file_type": "code",
       "source_file": "js/model.js",
-      "source_location": "L96",
+      "source_location": "L92",
       "_origin": "ast",
       "id": "js_model_compbyid",
-      "community": 3,
+      "community": 4,
       "norm_label": "compbyid()"
     },
     {
       "label": "wiresTo()",
       "file_type": "code",
       "source_file": "js/model.js",
-      "source_location": "L98",
+      "source_location": "L94",
       "_origin": "ast",
       "id": "js_model_wiresto",
-      "community": 3,
+      "community": 4,
       "norm_label": "wiresto()"
     },
     {
       "label": "wireTo()",
       "file_type": "code",
       "source_file": "js/model.js",
-      "source_location": "L99",
+      "source_location": "L95",
       "_origin": "ast",
       "id": "js_model_wireto",
-      "community": 3,
+      "community": 4,
       "norm_label": "wireto()"
     },
     {
       "label": "setTopCircuit()",
       "file_type": "code",
       "source_file": "js/model.js",
-      "source_location": "L101",
+      "source_location": "L97",
       "_origin": "ast",
       "id": "js_model_settopcircuit",
       "community": 3,
@@ -1318,7 +1278,7 @@
       "label": "curView()",
       "file_type": "code",
       "source_file": "js/model.js",
-      "source_location": "L107",
+      "source_location": "L103",
       "_origin": "ast",
       "id": "js_model_curview",
       "community": 2,
@@ -1328,17 +1288,17 @@
       "label": "curCircuit()",
       "file_type": "code",
       "source_file": "js/model.js",
-      "source_location": "L108",
+      "source_location": "L104",
       "_origin": "ast",
       "id": "js_model_curcircuit",
-      "community": 3,
+      "community": 2,
       "norm_label": "curcircuit()"
     },
     {
       "label": "atTop()",
       "file_type": "code",
       "source_file": "js/model.js",
-      "source_location": "L109",
+      "source_location": "L105",
       "_origin": "ast",
       "id": "js_model_attop",
       "community": 2,
@@ -1348,7 +1308,7 @@
       "label": "canEdit()",
       "file_type": "code",
       "source_file": "js/model.js",
-      "source_location": "L110",
+      "source_location": "L106",
       "_origin": "ast",
       "id": "js_model_canedit",
       "community": 2,
@@ -1358,7 +1318,7 @@
       "label": "numInputsOf()",
       "file_type": "code",
       "source_file": "js/model.js",
-      "source_location": "L114",
+      "source_location": "L110",
       "_origin": "ast",
       "id": "js_model_numinputsof",
       "community": 1,
@@ -1368,7 +1328,7 @@
       "label": "numOutputsOf()",
       "file_type": "code",
       "source_file": "js/model.js",
-      "source_location": "L131",
+      "source_location": "L127",
       "_origin": "ast",
       "id": "js_model_numoutputsof",
       "community": 1,
@@ -1378,7 +1338,7 @@
       "label": "muxSelStart()",
       "file_type": "code",
       "source_file": "js/model.js",
-      "source_location": "L146",
+      "source_location": "L142",
       "_origin": "ast",
       "id": "js_model_muxselstart",
       "community": 3,
@@ -1388,17 +1348,17 @@
       "label": "pinBits()",
       "file_type": "code",
       "source_file": "js/model.js",
-      "source_location": "L151",
+      "source_location": "L147",
       "_origin": "ast",
       "id": "js_model_pinbits",
-      "community": 1,
+      "community": 4,
       "norm_label": "pinbits()"
     },
     {
       "label": "makeComp()",
       "file_type": "code",
       "source_file": "js/model.js",
-      "source_location": "L165",
+      "source_location": "L161",
       "_origin": "ast",
       "id": "js_model_makecomp",
       "community": 3,
@@ -1408,7 +1368,7 @@
       "label": "instantiateData()",
       "file_type": "code",
       "source_file": "js/model.js",
-      "source_location": "L232",
+      "source_location": "L228",
       "_origin": "ast",
       "id": "js_model_instantiatedata",
       "community": 3,
@@ -1418,7 +1378,7 @@
       "label": "deserializeCircuit()",
       "file_type": "code",
       "source_file": "js/model.js",
-      "source_location": "L259",
+      "source_location": "L255",
       "_origin": "ast",
       "id": "js_model_deserializecircuit",
       "community": 3,
@@ -1428,47 +1388,47 @@
       "label": "serializeCircuit()",
       "file_type": "code",
       "source_file": "js/model.js",
-      "source_location": "L261",
+      "source_location": "L257",
       "_origin": "ast",
       "id": "js_model_serializecircuit",
-      "community": 5,
+      "community": 3,
       "norm_label": "serializecircuit()"
     },
     {
       "label": "registerDef()",
       "file_type": "code",
       "source_file": "js/model.js",
-      "source_location": "L286",
+      "source_location": "L282",
       "_origin": "ast",
       "id": "js_model_registerdef",
-      "community": 5,
+      "community": 3,
       "norm_label": "registerdef()"
     },
     {
       "label": "sortedPinComps()",
       "file_type": "code",
       "source_file": "js/model.js",
-      "source_location": "L296",
+      "source_location": "L292",
       "_origin": "ast",
       "id": "js_model_sortedpincomps",
-      "community": 5,
+      "community": 3,
       "norm_label": "sortedpincomps()"
     },
     {
       "label": "createDefFromCircuit()",
       "file_type": "code",
       "source_file": "js/model.js",
-      "source_location": "L303",
+      "source_location": "L299",
       "_origin": "ast",
       "id": "js_model_createdeffromcircuit",
-      "community": 5,
+      "community": 3,
       "norm_label": "createdeffromcircuit()"
     },
     {
       "label": "customDefs()",
       "file_type": "code",
       "source_file": "js/model.js",
-      "source_location": "L315",
+      "source_location": "L311",
       "_origin": "ast",
       "id": "js_model_customdefs",
       "community": 5,
@@ -1478,37 +1438,37 @@
       "label": "builtinDefs()",
       "file_type": "code",
       "source_file": "js/model.js",
-      "source_location": "L316",
+      "source_location": "L312",
       "_origin": "ast",
       "id": "js_model_builtindefs",
-      "community": 5,
+      "community": 3,
       "norm_label": "builtindefs()"
     },
     {
       "label": "defDependencies()",
       "file_type": "code",
       "source_file": "js/model.js",
-      "source_location": "L319",
+      "source_location": "L315",
       "_origin": "ast",
       "id": "js_model_defdependencies",
-      "community": 5,
+      "community": 3,
       "norm_label": "defdependencies()"
     },
     {
       "label": "defInUse()",
       "file_type": "code",
       "source_file": "js/model.js",
-      "source_location": "L332",
+      "source_location": "L328",
       "_origin": "ast",
       "id": "js_model_definuse",
-      "community": 5,
+      "community": 3,
       "norm_label": "definuse()"
     },
     {
       "label": "addWire()",
       "file_type": "code",
       "source_file": "js/model.js",
-      "source_location": "L345",
+      "source_location": "L341",
       "_origin": "ast",
       "id": "js_model_addwire",
       "community": 3,
@@ -1518,7 +1478,7 @@
       "label": "addWireBus()",
       "file_type": "code",
       "source_file": "js/model.js",
-      "source_location": "L352",
+      "source_location": "L348",
       "_origin": "ast",
       "id": "js_model_addwirebus",
       "community": 3,
@@ -1528,7 +1488,7 @@
       "label": "removeWire()",
       "file_type": "code",
       "source_file": "js/model.js",
-      "source_location": "L356",
+      "source_location": "L352",
       "_origin": "ast",
       "id": "js_model_removewire",
       "community": 3,
@@ -1538,7 +1498,7 @@
       "label": "removeComp()",
       "file_type": "code",
       "source_file": "js/model.js",
-      "source_location": "L360",
+      "source_location": "L356",
       "_origin": "ast",
       "id": "js_model_removecomp",
       "community": 3,
@@ -1548,7 +1508,7 @@
       "label": "setGateInputs()",
       "file_type": "code",
       "source_file": "js/model.js",
-      "source_location": "L365",
+      "source_location": "L361",
       "_origin": "ast",
       "id": "js_model_setgateinputs",
       "community": 3,
@@ -1558,7 +1518,7 @@
       "label": "setMatrixSize()",
       "file_type": "code",
       "source_file": "js/model.js",
-      "source_location": "L379",
+      "source_location": "L375",
       "_origin": "ast",
       "id": "js_model_setmatrixsize",
       "community": 3,
@@ -1568,7 +1528,7 @@
       "label": "setAddrSel()",
       "file_type": "code",
       "source_file": "js/model.js",
-      "source_location": "L402",
+      "source_location": "L398",
       "_origin": "ast",
       "id": "js_model_setaddrsel",
       "community": 3,
@@ -1578,7 +1538,7 @@
       "label": "setCompBits()",
       "file_type": "code",
       "source_file": "js/model.js",
-      "source_location": "L417",
+      "source_location": "L413",
       "_origin": "ast",
       "id": "js_model_setcompbits",
       "community": 3,
@@ -1588,17 +1548,17 @@
       "label": "nextLabel()",
       "file_type": "code",
       "source_file": "js/model.js",
-      "source_location": "L437",
+      "source_location": "L433",
       "_origin": "ast",
       "id": "js_model_nextlabel",
-      "community": 3,
+      "community": 2,
       "norm_label": "nextlabel()"
     },
     {
       "label": "compSize()",
       "file_type": "code",
       "source_file": "js/model.js",
-      "source_location": "L451",
+      "source_location": "L447",
       "_origin": "ast",
       "id": "js_model_compsize",
       "community": 1,
@@ -1608,7 +1568,7 @@
       "label": "rotateAround()",
       "file_type": "code",
       "source_file": "js/model.js",
-      "source_location": "L485",
+      "source_location": "L481",
       "_origin": "ast",
       "id": "js_model_rotatearound",
       "community": 3,
@@ -1618,7 +1578,7 @@
       "label": "pinPosLogical()",
       "file_type": "code",
       "source_file": "js/model.js",
-      "source_location": "L495",
+      "source_location": "L491",
       "_origin": "ast",
       "id": "js_model_pinposlogical",
       "community": 1,
@@ -1628,7 +1588,7 @@
       "label": "pinPos()",
       "file_type": "code",
       "source_file": "js/model.js",
-      "source_location": "L519",
+      "source_location": "L515",
       "_origin": "ast",
       "id": "js_model_pinpos",
       "community": 1,
@@ -1638,7 +1598,7 @@
       "label": "compBox()",
       "file_type": "code",
       "source_file": "js/model.js",
-      "source_location": "L527",
+      "source_location": "L523",
       "_origin": "ast",
       "id": "js_model_compbox",
       "community": 1,
@@ -1648,17 +1608,17 @@
       "label": "defaultWireRoute()",
       "file_type": "code",
       "source_file": "js/model.js",
-      "source_location": "L540",
+      "source_location": "L536",
       "_origin": "ast",
       "id": "js_model_defaultwireroute",
-      "community": 3,
+      "community": 2,
       "norm_label": "defaultwireroute()"
     },
     {
       "label": "wireRoutePoints()",
       "file_type": "code",
       "source_file": "js/model.js",
-      "source_location": "L546",
+      "source_location": "L542",
       "_origin": "ast",
       "id": "js_model_wireroutepoints",
       "community": 1,
@@ -2161,7 +2121,7 @@
       "source_location": "L887",
       "_origin": "ast",
       "id": "js_render_hitui",
-      "community": 2,
+      "community": 1,
       "norm_label": "hitui()"
     },
     {
@@ -2171,7 +2131,7 @@
       "source_location": "L895",
       "_origin": "ast",
       "id": "js_render_hitpin",
-      "community": 2,
+      "community": 1,
       "norm_label": "hitpin()"
     },
     {
@@ -2191,7 +2151,7 @@
       "source_location": "L931",
       "_origin": "ast",
       "id": "js_render_hitwireseg",
-      "community": 1,
+      "community": 2,
       "norm_label": "hitwireseg()"
     },
     {
@@ -2201,7 +2161,7 @@
       "source_location": "L958",
       "_origin": "ast",
       "id": "js_render_hitwire",
-      "community": 1,
+      "community": 2,
       "norm_label": "hitwire()"
     },
     {
@@ -2231,7 +2191,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "js_ui_toast",
-      "community": 2,
+      "community": 5,
       "norm_label": "toast()"
     },
     {
@@ -2291,7 +2251,7 @@
       "source_location": "L205",
       "_origin": "ast",
       "id": "js_ui_setmode",
-      "community": 2,
+      "community": 5,
       "norm_label": "setmode()"
     },
     {
@@ -2301,7 +2261,7 @@
       "source_location": "L225",
       "_origin": "ast",
       "id": "js_ui_updatesimui",
-      "community": 4,
+      "community": 5,
       "norm_label": "updatesimui()"
     },
     {
@@ -2311,7 +2271,7 @@
       "source_location": "L250",
       "_origin": "ast",
       "id": "js_ui_updatecrumbs",
-      "community": 2,
+      "community": 5,
       "norm_label": "updatecrumbs()"
     },
     {
@@ -2441,7 +2401,7 @@
       "source_location": "L468",
       "_origin": "ast",
       "id": "js_ui_closeexprpopup",
-      "community": 2,
+      "community": 5,
       "norm_label": "closeexprpopup()"
     },
     {
@@ -2491,7 +2451,7 @@
       "source_location": "L596",
       "_origin": "ast",
       "id": "js_ui_loadlocal",
-      "community": 2,
+      "community": 5,
       "norm_label": "loadlocal()"
     },
     {
@@ -2583,16 +2543,6 @@
       "id": "test_smoke_check",
       "community": 7,
       "norm_label": "check()"
-    },
-    {
-      "label": "chain()",
-      "file_type": "code",
-      "source_file": "test/smoke.js",
-      "source_location": "L1051",
-      "_origin": "ast",
-      "id": "test_smoke_chain",
-      "community": 7,
-      "norm_label": "chain()"
     },
     {
       "label": "components.md",
@@ -3048,7 +2998,7 @@
       "label": "Three-valued logic (tri-state buses)",
       "file_type": "document",
       "source_file": "ARCHITECTURE.md",
-      "source_location": "L137",
+      "source_location": "L125",
       "_origin": "ast",
       "id": "architecture_three_valued_logic_tri_state_buses",
       "community": 17,
@@ -3058,7 +3008,7 @@
       "label": "Renderer \u2014 paint the settled state",
       "file_type": "document",
       "source_file": "ARCHITECTURE.md",
-      "source_location": "L159",
+      "source_location": "L147",
       "_origin": "ast",
       "id": "architecture_renderer_paint_the_settled_state",
       "community": 17,
@@ -3068,7 +3018,7 @@
       "label": "Supporting subsystems",
       "file_type": "document",
       "source_file": "ARCHITECTURE.md",
-      "source_location": "L190",
+      "source_location": "L178",
       "_origin": "ast",
       "id": "architecture_supporting_subsystems",
       "community": 17,
@@ -3078,7 +3028,7 @@
       "label": "The cross-cutting principle: purity decides boundaries",
       "file_type": "document",
       "source_file": "ARCHITECTURE.md",
-      "source_location": "L207",
+      "source_location": "L195",
       "_origin": "ast",
       "id": "architecture_the_cross_cutting_principle_purity_decides_boundaries",
       "community": 17,
@@ -3088,7 +3038,7 @@
       "label": "Data-flow summary",
       "file_type": "document",
       "source_file": "ARCHITECTURE.md",
-      "source_location": "L229",
+      "source_location": "L217",
       "_origin": "ast",
       "id": "architecture_data_flow_summary",
       "community": 17,
@@ -3148,7 +3098,7 @@
       "label": "Custom agent types available",
       "file_type": "document",
       "source_file": "CLAUDE.md",
-      "source_location": "L64",
+      "source_location": "L60",
       "_origin": "ast",
       "id": "claude_custom_agent_types_available",
       "community": 17,
@@ -3158,7 +3108,7 @@
       "label": "Patterns for new features",
       "file_type": "document",
       "source_file": "CLAUDE.md",
-      "source_location": "L76",
+      "source_location": "L72",
       "_origin": "ast",
       "id": "claude_patterns_for_new_features",
       "community": 17,
@@ -3168,7 +3118,7 @@
       "label": "Key invariants",
       "file_type": "document",
       "source_file": "CLAUDE.md",
-      "source_location": "L86",
+      "source_location": "L82",
       "_origin": "ast",
       "id": "claude_key_invariants",
       "community": 17,
@@ -4242,9 +4192,9 @@
       "source_file": "js/engine.js",
       "source_location": "L247",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "js_engine",
-      "target": "js_engine_collectcircuits"
+      "target": "js_engine_collectcircuits",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -4322,9 +4272,9 @@
       "source_file": "js/engine.js",
       "source_location": "L179",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "js_engine",
-      "target": "js_engine_evalcomp"
+      "target": "js_engine_evalcomp",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -4335,16 +4285,6 @@
       "confidence_score": 1.0,
       "source": "js_engine",
       "target": "js_engine_evalgate"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "js/engine.js",
-      "source_location": "L272",
-      "weight": 1.0,
-      "source": "js_engine",
-      "target": "js_engine_evalgraph",
-      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -4385,16 +4325,6 @@
       "confidence_score": 1.0,
       "source": "js_engine",
       "target": "js_engine_exprtreeforoutputpin"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "js/engine.js",
-      "source_location": "L343",
-      "weight": 1.0,
-      "source": "js_engine",
-      "target": "js_engine_finishsettle",
-      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -4450,16 +4380,6 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "js/engine.js",
-      "source_location": "L306",
-      "weight": 1.0,
-      "source": "js_engine",
-      "target": "js_engine_runworklist",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "js/engine.js",
       "source_location": "L351",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -4485,16 +4405,6 @@
       "confidence_score": 1.0,
       "source": "js_engine",
       "target": "js_engine_settle"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "js/engine.js",
-      "source_location": "L363",
-      "weight": 1.0,
-      "source": "js_engine",
-      "target": "js_engine_settlefrom",
-      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -4635,9 +4545,9 @@
       "source_file": "js/engine.js",
       "source_location": "L237",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "js_engine_evalcomp",
-      "target": "js_engine_evalgate"
+      "target": "js_engine_evalgate",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -4646,9 +4556,9 @@
       "source_file": "js/engine.js",
       "source_location": "L228",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "js_engine_evalcomp",
-      "target": "js_engine_evaladdr"
+      "target": "js_engine_evaladdr",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -4657,9 +4567,9 @@
       "source_file": "js/engine.js",
       "source_location": "L192",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "js_engine_evalcomp",
-      "target": "js_engine_inputvals"
+      "target": "js_engine_inputvals",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -4688,22 +4598,11 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "js/engine.js",
-      "source_location": "L323",
-      "weight": 1.0,
-      "source": "js_engine_runworklist",
-      "target": "js_engine_inputvals",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "js/engine.js",
       "source_location": "L307",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "js_engine_settle",
-      "target": "js_engine_inputvals"
+      "target": "js_engine_inputvals",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -4734,18 +4633,7 @@
       "source_file": "js/engine.js",
       "source_location": "L185",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "js_engine_evalcomp",
-      "target": "js_engine_biteq"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "js/engine.js",
-      "source_location": "L326",
-      "weight": 1.0,
-      "source": "js_engine_runworklist",
       "target": "js_engine_biteq",
       "confidence_score": 1.0
     },
@@ -4756,9 +4644,9 @@
       "source_file": "js/engine.js",
       "source_location": "L310",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "js_engine_settle",
-      "target": "js_engine_biteq"
+      "target": "js_engine_biteq",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -4767,18 +4655,7 @@
       "source_file": "js/engine.js",
       "source_location": "L185",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "js_engine_evalcomp",
-      "target": "js_engine_copyval"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "js/engine.js",
-      "source_location": "L326",
-      "weight": 1.0,
-      "source": "js_engine_runworklist",
       "target": "js_engine_copyval",
       "confidence_score": 1.0
     },
@@ -4789,9 +4666,9 @@
       "source_file": "js/engine.js",
       "source_location": "L310",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "js_engine_settle",
-      "target": "js_engine_copyval"
+      "target": "js_engine_copyval",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -4822,9 +4699,9 @@
       "source_file": "js/engine.js",
       "source_location": "L198",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "js_engine_evalcomp",
-      "target": "js_engine_busvalue"
+      "target": "js_engine_busvalue",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -4952,17 +4829,6 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "js/engine.js",
-      "source_location": "L347",
-      "weight": 1.0,
-      "source": "js_engine_finishsettle",
-      "target": "js_engine_detectshortsin",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "js/engine.js",
       "source_location": "L258",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -4974,32 +4840,10 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "js/engine.js",
-      "source_location": "L331",
-      "weight": 1.0,
-      "source": "js_engine_runworklist",
-      "target": "js_engine_evalcomp",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "js/engine.js",
       "source_location": "L315",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "js_engine_settle",
-      "target": "js_engine_evalcomp"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "js/engine.js",
-      "source_location": "L275",
-      "weight": 1.0,
-      "source": "js_engine_evalgraph",
-      "target": "js_engine_collectcircuits",
+      "target": "js_engine_evalcomp",
       "confidence_score": 1.0
     },
     {
@@ -5009,96 +4853,8 @@
       "source_file": "js/engine.js",
       "source_location": "L269",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "js_engine_settle",
-      "target": "js_engine_collectcircuits"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "js/engine.js",
-      "source_location": "L431",
-      "weight": 1.0,
-      "source": "js_engine_clocktick",
-      "target": "js_engine_evalgraph",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "js/engine.js",
-      "source_location": "L287",
-      "weight": 1.0,
-      "source": "js_engine_evalgraph",
-      "target": "js_model_compbyid"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "js/engine.js",
-      "source_location": "L355",
-      "weight": 1.0,
-      "source": "js_engine_settle",
-      "target": "js_engine_evalgraph",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "js/engine.js",
-      "source_location": "L364",
-      "weight": 1.0,
-      "source": "js_engine_settlefrom",
-      "target": "js_engine_evalgraph",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "js/engine.js",
-      "source_location": "L356",
-      "weight": 1.0,
-      "source": "js_engine_settle",
-      "target": "js_engine_runworklist",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "js/engine.js",
-      "source_location": "L365",
-      "weight": 1.0,
-      "source": "js_engine_settlefrom",
-      "target": "js_engine_runworklist",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "js/engine.js",
-      "source_location": "L356",
-      "weight": 1.0,
-      "source": "js_engine_settle",
-      "target": "js_engine_finishsettle",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "js/engine.js",
-      "source_location": "L365",
-      "weight": 1.0,
-      "source": "js_engine_settlefrom",
-      "target": "js_engine_finishsettle",
+      "target": "js_engine_collectcircuits",
       "confidence_score": 1.0
     },
     {
@@ -5199,39 +4955,6 @@
       "weight": 1.0,
       "source": "js_interact_editwideinput",
       "target": "js_engine_settle"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "js/engine.js",
-      "source_location": "L431",
-      "weight": 1.0,
-      "source": "js_engine_clocktick",
-      "target": "js_engine_settlefrom",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "js/engine.js",
-      "source_location": "L459",
-      "weight": 1.0,
-      "source": "js_engine_toggleinput",
-      "target": "js_engine_settlefrom",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "js/interact.js",
-      "source_location": "L646",
-      "weight": 1.0,
-      "source": "js_interact_editwideinput",
-      "target": "js_engine_settlefrom"
     },
     {
       "relation": "calls",
@@ -11695,16 +11418,6 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "test/smoke.js",
-      "source_location": "L1051",
-      "weight": 1.0,
-      "source": "test_smoke",
-      "target": "test_smoke_chain",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "test/smoke.js",
       "source_location": "L13",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -12117,9 +11830,9 @@
       "source_file": "ARCHITECTURE.md",
       "source_location": "L1",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "architecture",
-      "target": "architecture_logic_lab_architecture"
+      "target": "architecture_logic_lab_architecture",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -12127,9 +11840,9 @@
       "source_file": "CLAUDE.md",
       "source_location": "L28",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "claude",
-      "target": "architecture"
+      "target": "architecture",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -12137,9 +11850,9 @@
       "source_file": "ARCHITECTURE.md",
       "source_location": "L217",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "architecture_logic_lab_architecture",
-      "target": "architecture_data_flow_summary"
+      "target": "architecture_data_flow_summary",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -12147,9 +11860,9 @@
       "source_file": "ARCHITECTURE.md",
       "source_location": "L40",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "architecture_logic_lab_architecture",
-      "target": "architecture_data_model_owns_the_truth"
+      "target": "architecture_data_model_owns_the_truth",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -12157,9 +11870,9 @@
       "source_file": "ARCHITECTURE.md",
       "source_location": "L78",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "architecture_logic_lab_architecture",
-      "target": "architecture_engine_simulate_by_event_driven_relaxation"
+      "target": "architecture_engine_simulate_by_event_driven_relaxation",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -12167,9 +11880,9 @@
       "source_file": "ARCHITECTURE.md",
       "source_location": "L147",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "architecture_logic_lab_architecture",
-      "target": "architecture_renderer_paint_the_settled_state"
+      "target": "architecture_renderer_paint_the_settled_state",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -12177,9 +11890,9 @@
       "source_file": "ARCHITECTURE.md",
       "source_location": "L178",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "architecture_logic_lab_architecture",
-      "target": "architecture_supporting_subsystems"
+      "target": "architecture_supporting_subsystems",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -12187,9 +11900,9 @@
       "source_file": "ARCHITECTURE.md",
       "source_location": "L15",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "architecture_logic_lab_architecture",
-      "target": "architecture_the_core_loop"
+      "target": "architecture_the_core_loop",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -12197,9 +11910,9 @@
       "source_file": "ARCHITECTURE.md",
       "source_location": "L195",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "architecture_logic_lab_architecture",
-      "target": "architecture_the_cross_cutting_principle_purity_decides_boundaries"
+      "target": "architecture_the_cross_cutting_principle_purity_decides_boundaries",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -12207,9 +11920,9 @@
       "source_file": "ARCHITECTURE.md",
       "source_location": "L125",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "architecture_engine_simulate_by_event_driven_relaxation",
-      "target": "architecture_three_valued_logic_tri_state_buses"
+      "target": "architecture_three_valued_logic_tri_state_buses",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
