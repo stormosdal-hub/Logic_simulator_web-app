@@ -8,6 +8,12 @@
 </head>
 <body>
 
+<div id="tabbar">
+  <button class="tab active" data-tab="digital">⚡ Digital Logic</button>
+  <button class="tab" data-tab="analog">🔌 Analog Electronics</button>
+</div>
+
+<div id="digitalApp">
 <header id="toolbar">
   <div class="brand">⚡ Logic&nbsp;Lab</div>
   <button id="modeBtn" class="primary" title="Switch between editing and simulation">▶ Simulate</button>
@@ -121,6 +127,28 @@
     </div>
   </div>
 </div>
+</div><!-- /#digitalApp -->
+
+<div id="analogApp" class="hidden">
+  <header id="anToolbar">
+    <div class="brand">🔌 Analog&nbsp;Lab</div>
+    <button id="anModeBtn" class="primary" title="Solve / edit the circuit">▶ Simulate</button>
+    <div class="group">
+      <button id="anNewBtn" title="Clear the sheet">New</button>
+    </div>
+    <span id="anStatus" class="an-status"></span>
+    <div class="spacer"></div>
+    <div class="an-tip">DC circuits · click a meter while simulating for a readout</div>
+  </header>
+  <div id="anMain">
+    <aside id="anPalette"></aside>
+    <div id="anStage">
+      <canvas id="anCanvas"></canvas>
+      <div id="anMeters"></div>
+      <div id="anCtxMenu" class="hidden"></div>
+    </div>
+  </div>
+</div>
 
 <script src="js/model.js"></script>
 <script src="js/builtins.js"></script>
@@ -129,5 +157,10 @@
 <script src="js/interact.js"></script>
 <script src="js/ui.js"></script>
 <script src="js/main.js"></script>
+<script src="js/analog/model.js"></script>
+<script src="js/analog/engine.js"></script>
+<script src="js/analog/render.js"></script>
+<script src="js/analog/interact.js"></script>
+<script src="js/analog/ui.js"></script>
 </body>
 </html>

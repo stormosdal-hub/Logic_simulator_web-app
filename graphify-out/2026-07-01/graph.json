@@ -205,196 +205,6 @@
       "norm_label": "transport"
     },
     {
-      "label": "engine.js",
-      "file_type": "code",
-      "source_file": "js/analog/engine.js",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "analog_engine",
-      "community": 26,
-      "norm_label": "engine.js"
-    },
-    {
-      "label": "_anSolve()",
-      "file_type": "code",
-      "source_file": "js/analog/engine.js",
-      "source_location": "L24",
-      "_origin": "ast",
-      "id": "analog_engine_ansolve",
-      "community": 26,
-      "norm_label": "_ansolve()"
-    },
-    {
-      "label": "interact.js",
-      "file_type": "code",
-      "source_file": "js/analog/interact.js",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "analog_interact",
-      "community": 23,
-      "norm_label": "interact.js"
-    },
-    {
-      "label": "_anDown()",
-      "file_type": "code",
-      "source_file": "js/analog/interact.js",
-      "source_location": "L44",
-      "_origin": "ast",
-      "id": "analog_interact_andown",
-      "community": 23,
-      "norm_label": "_andown()"
-    },
-    {
-      "label": "_anMove()",
-      "file_type": "code",
-      "source_file": "js/analog/interact.js",
-      "source_location": "L87",
-      "_origin": "ast",
-      "id": "analog_interact_anmove",
-      "community": 23,
-      "norm_label": "_anmove()"
-    },
-    {
-      "label": "_anUp()",
-      "file_type": "code",
-      "source_file": "js/analog/interact.js",
-      "source_location": "L111",
-      "_origin": "ast",
-      "id": "analog_interact_anup",
-      "community": 23,
-      "norm_label": "_anup()"
-    },
-    {
-      "label": "_anContext()",
-      "file_type": "code",
-      "source_file": "js/analog/interact.js",
-      "source_location": "L126",
-      "_origin": "ast",
-      "id": "analog_interact_ancontext",
-      "community": 23,
-      "norm_label": "_ancontext()"
-    },
-    {
-      "label": "_anWheel()",
-      "file_type": "code",
-      "source_file": "js/analog/interact.js",
-      "source_location": "L135",
-      "_origin": "ast",
-      "id": "analog_interact_anwheel",
-      "community": 23,
-      "norm_label": "_anwheel()"
-    },
-    {
-      "label": "_anKey()",
-      "file_type": "code",
-      "source_file": "js/analog/interact.js",
-      "source_location": "L146",
-      "_origin": "ast",
-      "id": "analog_interact_ankey",
-      "community": 23,
-      "norm_label": "_ankey()"
-    },
-    {
-      "label": "model.js",
-      "file_type": "code",
-      "source_file": "js/analog/model.js",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "analog_model",
-      "community": 27,
-      "norm_label": "model.js"
-    },
-    {
-      "label": "_anRot()",
-      "file_type": "code",
-      "source_file": "js/analog/model.js",
-      "source_location": "L45",
-      "_origin": "ast",
-      "id": "analog_model_anrot",
-      "community": 27,
-      "norm_label": "_anrot()"
-    },
-    {
-      "label": "render.js",
-      "file_type": "code",
-      "source_file": "js/analog/render.js",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "analog_render",
-      "community": 24,
-      "norm_label": "render.js"
-    },
-    {
-      "label": "_anVColor()",
-      "file_type": "code",
-      "source_file": "js/analog/render.js",
-      "source_location": "L20",
-      "_origin": "ast",
-      "id": "analog_render_anvcolor",
-      "community": 24,
-      "norm_label": "_anvcolor()"
-    },
-    {
-      "label": "_endPos()",
-      "file_type": "code",
-      "source_file": "js/analog/render.js",
-      "source_location": "L85",
-      "_origin": "ast",
-      "id": "analog_render_endpos",
-      "community": 24,
-      "norm_label": "_endpos()"
-    },
-    {
-      "label": "_drawComp()",
-      "file_type": "code",
-      "source_file": "js/analog/render.js",
-      "source_location": "L87",
-      "_origin": "ast",
-      "id": "analog_render_drawcomp",
-      "community": 24,
-      "norm_label": "_drawcomp()"
-    },
-    {
-      "label": "ui.js",
-      "file_type": "code",
-      "source_file": "js/analog/ui.js",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "analog_ui",
-      "community": 25,
-      "norm_label": "ui.js"
-    },
-    {
-      "label": "AN_PALETTE",
-      "file_type": "code",
-      "source_file": "js/analog/ui.js",
-      "source_location": "L17",
-      "_origin": "ast",
-      "id": "analog_ui_an_palette",
-      "community": 25,
-      "norm_label": "an_palette"
-    },
-    {
-      "label": "_anParse()",
-      "file_type": "code",
-      "source_file": "js/analog/ui.js",
-      "source_location": "L136",
-      "_origin": "ast",
-      "id": "analog_ui_anparse",
-      "community": 25,
-      "norm_label": "_anparse()"
-    },
-    {
-      "label": "_anDragWindow()",
-      "file_type": "code",
-      "source_file": "js/analog/ui.js",
-      "source_location": "L183",
-      "_origin": "ast",
-      "id": "analog_ui_andragwindow",
-      "community": 25,
-      "norm_label": "_andragwindow()"
-    },
-    {
       "label": "builtins.js",
       "file_type": "code",
       "source_file": "js/builtins.js",
@@ -491,7 +301,7 @@
       "source_location": "L112",
       "_origin": "ast",
       "id": "js_engine_resolvebit",
-      "community": 4,
+      "community": 1,
       "norm_label": "resolvebit()"
     },
     {
@@ -521,7 +331,7 @@
       "source_location": "L131",
       "_origin": "ast",
       "id": "js_engine_busvalue",
-      "community": 4,
+      "community": 1,
       "norm_label": "busvalue()"
     },
     {
@@ -531,7 +341,7 @@
       "source_location": "L148",
       "_origin": "ast",
       "id": "js_engine_matrixlit",
-      "community": 4,
+      "community": 1,
       "norm_label": "matrixlit()"
     },
     {
@@ -681,7 +491,7 @@
       "source_location": "L422",
       "_origin": "ast",
       "id": "js_engine_afterstructchange",
-      "community": 2,
+      "community": 3,
       "norm_label": "afterstructchange()"
     },
     {
@@ -811,7 +621,7 @@
       "source_location": "L552",
       "_origin": "ast",
       "id": "js_engine_exprtreeforoutputpin",
-      "community": 4,
+      "community": 3,
       "norm_label": "exprtreeforoutputpin()"
     },
     {
@@ -1081,7 +891,7 @@
       "source_location": "L442",
       "_origin": "ast",
       "id": "js_interact_addat",
-      "community": 2,
+      "community": 3,
       "norm_label": "addat()"
     },
     {
@@ -1101,7 +911,7 @@
       "source_location": "L470",
       "_origin": "ast",
       "id": "js_interact_rotatecomp",
-      "community": 2,
+      "community": 3,
       "norm_label": "rotatecomp()"
     },
     {
@@ -1141,7 +951,7 @@
       "source_location": "L514",
       "_origin": "ast",
       "id": "js_interact_deleteselection",
-      "community": 2,
+      "community": 3,
       "norm_label": "deleteselection()"
     },
     {
@@ -1161,7 +971,7 @@
       "source_location": "L533",
       "_origin": "ast",
       "id": "js_interact_pasteclipboard",
-      "community": 2,
+      "community": 3,
       "norm_label": "pasteclipboard()"
     },
     {
@@ -1211,7 +1021,7 @@
       "source_location": "L621",
       "_origin": "ast",
       "id": "js_interact_parsebusvalue",
-      "community": 4,
+      "community": 2,
       "norm_label": "parsebusvalue()"
     },
     {
@@ -1221,7 +1031,7 @@
       "source_location": "L628",
       "_origin": "ast",
       "id": "js_interact_busvalstohex",
-      "community": 5,
+      "community": 2,
       "norm_label": "busvalstohex()"
     },
     {
@@ -1251,7 +1061,7 @@
       "source_location": "L676",
       "_origin": "ast",
       "id": "js_interact_dragwiresegment",
-      "community": 2,
+      "community": 3,
       "norm_label": "dragwiresegment()"
     },
     {
@@ -1261,7 +1071,7 @@
       "source_location": "L699",
       "_origin": "ast",
       "id": "js_interact_oncanvasdrop",
-      "community": 2,
+      "community": 3,
       "norm_label": "oncanvasdrop()"
     },
     {
@@ -1331,7 +1141,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "js_model_snap",
-      "community": 2,
+      "community": 3,
       "norm_label": "snap()"
     },
     {
@@ -1461,7 +1271,7 @@
       "source_location": "L84",
       "_origin": "ast",
       "id": "js_model_getmaps",
-      "community": 4,
+      "community": 3,
       "norm_label": "getmaps()"
     },
     {
@@ -1471,7 +1281,7 @@
       "source_location": "L96",
       "_origin": "ast",
       "id": "js_model_compbyid",
-      "community": 4,
+      "community": 3,
       "norm_label": "compbyid()"
     },
     {
@@ -1481,7 +1291,7 @@
       "source_location": "L98",
       "_origin": "ast",
       "id": "js_model_wiresto",
-      "community": 4,
+      "community": 3,
       "norm_label": "wiresto()"
     },
     {
@@ -1491,7 +1301,7 @@
       "source_location": "L99",
       "_origin": "ast",
       "id": "js_model_wireto",
-      "community": 4,
+      "community": 3,
       "norm_label": "wireto()"
     },
     {
@@ -1501,7 +1311,7 @@
       "source_location": "L101",
       "_origin": "ast",
       "id": "js_model_settopcircuit",
-      "community": 5,
+      "community": 3,
       "norm_label": "settopcircuit()"
     },
     {
@@ -1521,7 +1331,7 @@
       "source_location": "L108",
       "_origin": "ast",
       "id": "js_model_curcircuit",
-      "community": 2,
+      "community": 3,
       "norm_label": "curcircuit()"
     },
     {
@@ -1581,7 +1391,7 @@
       "source_location": "L151",
       "_origin": "ast",
       "id": "js_model_pinbits",
-      "community": 4,
+      "community": 1,
       "norm_label": "pinbits()"
     },
     {
@@ -1781,7 +1591,7 @@
       "source_location": "L437",
       "_origin": "ast",
       "id": "js_model_nextlabel",
-      "community": 2,
+      "community": 3,
       "norm_label": "nextlabel()"
     },
     {
@@ -1841,7 +1651,7 @@
       "source_location": "L540",
       "_origin": "ast",
       "id": "js_model_defaultwireroute",
-      "community": 2,
+      "community": 3,
       "norm_label": "defaultwireroute()"
     },
     {
@@ -1991,7 +1801,7 @@
       "source_location": "L93",
       "_origin": "ast",
       "id": "js_render_fitviewinto",
-      "community": 2,
+      "community": 1,
       "norm_label": "fitviewinto()"
     },
     {
@@ -2001,7 +1811,7 @@
       "source_location": "L110",
       "_origin": "ast",
       "id": "js_render_fitview",
-      "community": 2,
+      "community": 1,
       "norm_label": "fitview()"
     },
     {
@@ -2381,7 +2191,7 @@
       "source_location": "L931",
       "_origin": "ast",
       "id": "js_render_hitwireseg",
-      "community": 2,
+      "community": 1,
       "norm_label": "hitwireseg()"
     },
     {
@@ -2391,7 +2201,7 @@
       "source_location": "L958",
       "_origin": "ast",
       "id": "js_render_hitwire",
-      "community": 2,
+      "community": 1,
       "norm_label": "hitwire()"
     },
     {
@@ -2421,7 +2231,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "js_ui_toast",
-      "community": 5,
+      "community": 2,
       "norm_label": "toast()"
     },
     {
@@ -2481,7 +2291,7 @@
       "source_location": "L205",
       "_origin": "ast",
       "id": "js_ui_setmode",
-      "community": 5,
+      "community": 2,
       "norm_label": "setmode()"
     },
     {
@@ -2631,7 +2441,7 @@
       "source_location": "L468",
       "_origin": "ast",
       "id": "js_ui_closeexprpopup",
-      "community": 5,
+      "community": 2,
       "norm_label": "closeexprpopup()"
     },
     {
@@ -2681,7 +2491,7 @@
       "source_location": "L596",
       "_origin": "ast",
       "id": "js_ui_loadlocal",
-      "community": 5,
+      "community": 2,
       "norm_label": "loadlocal()"
     },
     {
@@ -2703,86 +2513,6 @@
       "id": "js_ui_onimportfile",
       "community": 5,
       "norm_label": "onimportfile()"
-    },
-    {
-      "label": "analog.js",
-      "file_type": "code",
-      "source_file": "test/analog.js",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "test_analog",
-      "community": 22,
-      "norm_label": "analog.js"
-    },
-    {
-      "label": "fs",
-      "file_type": "code",
-      "source_file": "test/analog.js",
-      "source_location": "L2",
-      "_origin": "ast",
-      "id": "test_analog_fs",
-      "community": 22,
-      "norm_label": "fs"
-    },
-    {
-      "label": "path",
-      "file_type": "code",
-      "source_file": "test/analog.js",
-      "source_location": "L3",
-      "_origin": "ast",
-      "id": "test_analog_path",
-      "community": 22,
-      "norm_label": "path"
-    },
-    {
-      "label": "vm",
-      "file_type": "code",
-      "source_file": "test/analog.js",
-      "source_location": "L4",
-      "_origin": "ast",
-      "id": "test_analog_vm",
-      "community": 22,
-      "norm_label": "vm"
-    },
-    {
-      "label": "ctx",
-      "file_type": "code",
-      "source_file": "test/analog.js",
-      "source_location": "L6",
-      "_origin": "ast",
-      "id": "test_analog_ctx",
-      "community": 22,
-      "norm_label": "ctx"
-    },
-    {
-      "label": "A",
-      "file_type": "code",
-      "source_file": "test/analog.js",
-      "source_location": "L9",
-      "_origin": "ast",
-      "id": "test_analog_a",
-      "community": 22,
-      "norm_label": "a"
-    },
-    {
-      "label": "check()",
-      "file_type": "code",
-      "source_file": "test/analog.js",
-      "source_location": "L12",
-      "_origin": "ast",
-      "id": "test_analog_check",
-      "community": 22,
-      "norm_label": "check()"
-    },
-    {
-      "label": "near()",
-      "file_type": "code",
-      "source_file": "test/analog.js",
-      "source_location": "L16",
-      "_origin": "ast",
-      "id": "test_analog_near",
-      "community": 22,
-      "norm_label": "near()"
     },
     {
       "label": "smoke.js",
@@ -3398,7 +3128,7 @@
       "label": "File ownership",
       "file_type": "document",
       "source_file": "CLAUDE.md",
-      "source_location": "L14",
+      "source_location": "L13",
       "_origin": "ast",
       "id": "claude_file_ownership",
       "community": 17,
@@ -3408,27 +3138,17 @@
       "label": "Architecture",
       "file_type": "document",
       "source_file": "CLAUDE.md",
-      "source_location": "L40",
+      "source_location": "L26",
       "_origin": "ast",
       "id": "claude_architecture",
       "community": 17,
       "norm_label": "architecture"
     },
     {
-      "label": "Analog simulator (second tab)",
-      "file_type": "document",
-      "source_file": "CLAUDE.md",
-      "source_location": "L78",
-      "_origin": "ast",
-      "id": "claude_analog_simulator_second_tab",
-      "community": 17,
-      "norm_label": "analog simulator (second tab)"
-    },
-    {
       "label": "Custom agent types available",
       "file_type": "document",
       "source_file": "CLAUDE.md",
-      "source_location": "L90",
+      "source_location": "L64",
       "_origin": "ast",
       "id": "claude_custom_agent_types_available",
       "community": 17,
@@ -3438,7 +3158,7 @@
       "label": "Patterns for new features",
       "file_type": "document",
       "source_file": "CLAUDE.md",
-      "source_location": "L102",
+      "source_location": "L76",
       "_origin": "ast",
       "id": "claude_patterns_for_new_features",
       "community": 17,
@@ -3448,7 +3168,7 @@
       "label": "Key invariants",
       "file_type": "document",
       "source_file": "CLAUDE.md",
-      "source_location": "L112",
+      "source_location": "L86",
       "_origin": "ast",
       "id": "claude_key_invariants",
       "community": 17,
@@ -4407,146 +4127,6 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "js/analog/engine.js",
-      "source_location": "L24",
-      "weight": 1.0,
-      "source": "analog_engine",
-      "target": "analog_engine_ansolve",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "js/analog/interact.js",
-      "source_location": "L126",
-      "weight": 1.0,
-      "source": "analog_interact",
-      "target": "analog_interact_ancontext",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "js/analog/interact.js",
-      "source_location": "L44",
-      "weight": 1.0,
-      "source": "analog_interact",
-      "target": "analog_interact_andown",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "js/analog/interact.js",
-      "source_location": "L146",
-      "weight": 1.0,
-      "source": "analog_interact",
-      "target": "analog_interact_ankey",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "js/analog/interact.js",
-      "source_location": "L87",
-      "weight": 1.0,
-      "source": "analog_interact",
-      "target": "analog_interact_anmove",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "js/analog/interact.js",
-      "source_location": "L111",
-      "weight": 1.0,
-      "source": "analog_interact",
-      "target": "analog_interact_anup",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "js/analog/interact.js",
-      "source_location": "L135",
-      "weight": 1.0,
-      "source": "analog_interact",
-      "target": "analog_interact_anwheel",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "js/analog/model.js",
-      "source_location": "L45",
-      "weight": 1.0,
-      "source": "analog_model",
-      "target": "analog_model_anrot",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "js/analog/render.js",
-      "source_location": "L20",
-      "weight": 1.0,
-      "source": "analog_render",
-      "target": "analog_render_anvcolor",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "js/analog/render.js",
-      "source_location": "L87",
-      "weight": 1.0,
-      "source": "analog_render",
-      "target": "analog_render_drawcomp",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "js/analog/render.js",
-      "source_location": "L85",
-      "weight": 1.0,
-      "source": "analog_render",
-      "target": "analog_render_endpos",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "js/analog/ui.js",
-      "source_location": "L17",
-      "weight": 1.0,
-      "source": "analog_ui",
-      "target": "analog_ui_an_palette",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "js/analog/ui.js",
-      "source_location": "L183",
-      "weight": 1.0,
-      "source": "analog_ui",
-      "target": "analog_ui_andragwindow",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "js/analog/ui.js",
-      "source_location": "L136",
-      "weight": 1.0,
-      "source": "analog_ui",
-      "target": "analog_ui_anparse",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
       "source_file": "js/builtins.js",
       "source_location": "L8",
       "weight": 1.0,
@@ -4762,9 +4342,9 @@
       "source_file": "js/engine.js",
       "source_location": "L272",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "js_engine",
-      "target": "js_engine_evalgraph"
+      "target": "js_engine_evalgraph",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -4812,9 +4392,9 @@
       "source_file": "js/engine.js",
       "source_location": "L343",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "js_engine",
-      "target": "js_engine_finishsettle"
+      "target": "js_engine_finishsettle",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -4872,9 +4452,9 @@
       "source_file": "js/engine.js",
       "source_location": "L306",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "js_engine",
-      "target": "js_engine_runworklist"
+      "target": "js_engine_runworklist",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -4912,9 +4492,9 @@
       "source_file": "js/engine.js",
       "source_location": "L363",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "js_engine",
-      "target": "js_engine_settlefrom"
+      "target": "js_engine_settlefrom",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -5110,9 +4690,9 @@
       "source_file": "js/engine.js",
       "source_location": "L323",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "js_engine_runworklist",
-      "target": "js_engine_inputvals"
+      "target": "js_engine_inputvals",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -5165,9 +4745,9 @@
       "source_file": "js/engine.js",
       "source_location": "L326",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "js_engine_runworklist",
-      "target": "js_engine_biteq"
+      "target": "js_engine_biteq",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -5198,9 +4778,9 @@
       "source_file": "js/engine.js",
       "source_location": "L326",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "js_engine_runworklist",
-      "target": "js_engine_copyval"
+      "target": "js_engine_copyval",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -5374,9 +4954,9 @@
       "source_file": "js/engine.js",
       "source_location": "L347",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "js_engine_finishsettle",
-      "target": "js_engine_detectshortsin"
+      "target": "js_engine_detectshortsin",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -5396,9 +4976,9 @@
       "source_file": "js/engine.js",
       "source_location": "L331",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "js_engine_runworklist",
-      "target": "js_engine_evalcomp"
+      "target": "js_engine_evalcomp",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -5418,9 +4998,9 @@
       "source_file": "js/engine.js",
       "source_location": "L275",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "js_engine_evalgraph",
-      "target": "js_engine_collectcircuits"
+      "target": "js_engine_collectcircuits",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -5440,9 +5020,9 @@
       "source_file": "js/engine.js",
       "source_location": "L431",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "js_engine_clocktick",
-      "target": "js_engine_evalgraph"
+      "target": "js_engine_evalgraph",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -5462,9 +5042,9 @@
       "source_file": "js/engine.js",
       "source_location": "L355",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "js_engine_settle",
-      "target": "js_engine_evalgraph"
+      "target": "js_engine_evalgraph",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -5473,9 +5053,9 @@
       "source_file": "js/engine.js",
       "source_location": "L364",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "js_engine_settlefrom",
-      "target": "js_engine_evalgraph"
+      "target": "js_engine_evalgraph",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -5484,9 +5064,9 @@
       "source_file": "js/engine.js",
       "source_location": "L356",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "js_engine_settle",
-      "target": "js_engine_runworklist"
+      "target": "js_engine_runworklist",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -5495,9 +5075,9 @@
       "source_file": "js/engine.js",
       "source_location": "L365",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "js_engine_settlefrom",
-      "target": "js_engine_runworklist"
+      "target": "js_engine_runworklist",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -5506,9 +5086,9 @@
       "source_file": "js/engine.js",
       "source_location": "L356",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "js_engine_settle",
-      "target": "js_engine_finishsettle"
+      "target": "js_engine_finishsettle",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -5517,9 +5097,9 @@
       "source_file": "js/engine.js",
       "source_location": "L365",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "js_engine_settlefrom",
-      "target": "js_engine_finishsettle"
+      "target": "js_engine_finishsettle",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -5627,9 +5207,9 @@
       "source_file": "js/engine.js",
       "source_location": "L431",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "js_engine_clocktick",
-      "target": "js_engine_settlefrom"
+      "target": "js_engine_settlefrom",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -5638,9 +5218,9 @@
       "source_file": "js/engine.js",
       "source_location": "L459",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "js_engine_toggleinput",
-      "target": "js_engine_settlefrom"
+      "target": "js_engine_settlefrom",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -12114,82 +11694,12 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "test/analog.js",
-      "source_location": "L9",
-      "weight": 1.0,
-      "source": "test_analog",
-      "target": "test_analog_a",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "test/analog.js",
-      "source_location": "L12",
-      "weight": 1.0,
-      "source": "test_analog",
-      "target": "test_analog_check",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "test/analog.js",
-      "source_location": "L6",
-      "weight": 1.0,
-      "source": "test_analog",
-      "target": "test_analog_ctx",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "test/analog.js",
-      "source_location": "L2",
-      "weight": 1.0,
-      "source": "test_analog",
-      "target": "test_analog_fs",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "test/analog.js",
-      "source_location": "L16",
-      "weight": 1.0,
-      "source": "test_analog",
-      "target": "test_analog_near",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "test/analog.js",
-      "source_location": "L3",
-      "weight": 1.0,
-      "source": "test_analog",
-      "target": "test_analog_path",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "test/analog.js",
-      "source_location": "L4",
-      "weight": 1.0,
-      "source": "test_analog",
-      "target": "test_analog_vm",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
       "source_file": "test/smoke.js",
       "source_location": "L1051",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "test_smoke",
-      "target": "test_smoke_chain"
+      "target": "test_smoke_chain",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -12710,16 +12220,6 @@
       "confidence_score": 1.0,
       "source": "claude",
       "target": "claude_logic_lab_project_guide"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "CLAUDE.md",
-      "source_location": "L78",
-      "weight": 1.0,
-      "source": "claude_logic_lab_project_guide",
-      "target": "claude_analog_simulator_second_tab",
-      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -13633,5 +13133,5 @@
       "source_file": ".claude/agents/sim-engine.md"
     }
   ],
-  "built_at_commit": "59a4ef3cbaca7d4ed272c669f4a222e5a74b1405"
+  "built_at_commit": "047a705354af51f0664426d629231b3c89b82d54"
 }

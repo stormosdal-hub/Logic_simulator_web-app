@@ -1,16 +1,19 @@
 # Logic Lab — Project Guide
 
-A dependency-free digital logic simulator. Open `index.html` directly in a browser — no server or build step needed.
+A dependency-free circuit simulator with **two tabs** (a top `#tabbar` switches them): a **digital logic** simulator (the original app) and an **analog electronics** simulator. Open `index.html` directly in a browser — no server or build step needed.
 
 ## Run tests
 
 ```bash
-node test/smoke.js
+node test/smoke.js     # digital logic engine
+node test/analog.js    # analog MNA engine
 ```
 
 All tests must pass before marking any task complete.
 
 ## File ownership
+
+**Digital logic app** (bare globals — `App`, `Sim`, `makeComp`, …):
 
 | File | Role |
 |---|---|
@@ -22,6 +25,17 @@ All tests must pass before marking any task complete.
 | `js/interact.js` | Mouse/keyboard interaction, drag-and-drop, hierarchy navigation |
 | `js/main.js` | Startup only |
 | `test/smoke.js` | Headless Node.js test suite (loads model + engine + builtins via vm) |
+
+**Analog app** (all namespaced under one `Analog` object, so it can't collide with the digital globals):
+
+| File | Role |
+|---|---|
+| `js/analog/model.js` | Analog data model: `Analog.TYPES`, components with **terminals**, wires, union-find **node extraction** (`buildNodes`). Pure. |
+| `js/analog/engine.js` | **Modified Nodal Analysis** DC solver (`solveDC`) + Gaussian elimination + `fmt` (SI units). Pure. |
+| `js/analog/render.js` | Schematic symbols, wires, terminals, live values. |
+| `js/analog/interact.js` | Place/wire/move, pan/zoom, right-click menu, click-a-meter in sim. |
+| `js/analog/ui.js` | `Analog.App` state, tab switching, palette, toolbar, DC solve loop, value editor, meter windows. |
+| `test/analog.js` | Headless MNA tests (loads analog model + engine via vm). |
 
 ## Architecture
 
@@ -60,6 +74,18 @@ All tests must pass before marking any task complete.
 **Wire routing:** orthogonal segments only. `route` array alternates X/Y coords. `defaultWireRoute` returns `[midX]` for forward wires, `[src.x+16, midY, dst.x-16]` for backward ones.
 
 **`afterSimChange()`** must be called after any simulation state change — it triggers render, UI, panel, and timeline updates.
+
+## Analog simulator (second tab)
+
+A separate SPICE-style app under the **`Analog`** namespace (no shared globals with the digital app). The `#tabbar` toggles `#digitalApp` / `#analogApp`; `Analog.initTabs()` wires it and lazily calls `Analog.init()` on first switch.
+
+**Model:** components have **terminals** (not typed pins) at rotated logical offsets (`Analog.terminalPos`). Wires join two terminals `{c, t}`. `Analog.TYPES` is the catalogue (currently `RES`, `DCV`, `GND`, `VM` voltmeter, `AM` ammeter), each with `value`/`unit`. There is **no wire-value**; instead electrical **nodes** are derived: `buildNodes()` runs union-find over wire-connected terminals; every set is a node; terminals on a `GND` collapse to the datum (`"gnd"`, 0 V).
+
+**Engine — Modified Nodal Analysis (`solveDC`):** builds `A·x = z` where `x` = [non-datum node voltages …, voltage-source branch currents …] and solves it directly by Gaussian elimination (`_anSolve`). Pure resistive DC is linear → one exact solve, no iteration, no time-stepping. Stamps: resistor = conductance `1/R`; DC source & ammeter (a 0 V source) = a branch-current unknown + the constraint `V(+)−V(−)=E`; voltmeter = ideal open (not stamped, just probed); ground = datum (never an unknown). A missing ground or floating section returns `{ ok:false, error }` instead of crashing. `result.meter(c)` reads a meter, `result.volt(cid,t)` any terminal, `result.current(c)` a resistor/ammeter.
+
+**Sim loop:** it's a solver, not a settler — `Analog.resolve()` re-runs `solveDC` on entering sim and after any edit, updates the status pill and open meter windows. Right-click a part → Change value / Rotate / Delete. In sim, **click a meter** → a draggable readout window (`Analog.openMeter`). `Analog.fmt` renders SI units (`1.5 kΩ`, `5 mA`).
+
+**Roadmap:** DC foundation is done. Next phases (chosen order): transient engine (capacitors/inductors + oscilloscope, AC sources) → diodes/LEDs/transistors (nonlinear Newton-Raphson) → switches/relays. See the `analog-simulator` memory.
 
 ## Custom agent types available
 
