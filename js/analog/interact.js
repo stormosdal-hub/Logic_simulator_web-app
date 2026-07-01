@@ -56,10 +56,16 @@ function _anDown(e) {
     return;
   }
 
-  // sim mode: click a meter to open its readout window
+  // sim mode: click a meter → readout window; click a switch → flip it
   if (App.mode === "sim") {
     const hc = Analog.hitComp(w.x, w.y);
     if (hc && Analog.isMeter(hc)) { Analog.openMeter(hc); return; }
+    if (hc && Analog.isSwitch(hc)) {
+      if (Analog.TYPES[hc.type].momentary) { hc.closed = true; App.pushHeld = hc; }
+      else hc.closed = !hc.closed;
+      Analog.afterEdit();
+      return;
+    }
     App.drag = { pan: true, sx: m.x, sy: m.y, ox: App.view.ox, oy: App.view.oy };
     return;
   }
@@ -110,6 +116,7 @@ function _anMove(e) {
 
 function _anUp(e) {
   const App = Analog.App;
+  if (App.pushHeld) { App.pushHeld.closed = false; App.pushHeld = null; Analog.afterEdit(); }
   if (App.wiring) {
     const m = Analog.mousePos(e), w = Analog.screenToWorld(m.x, m.y);
     const t = Analog.hitTerminal(w.x, w.y);

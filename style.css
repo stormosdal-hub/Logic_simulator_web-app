@@ -489,3 +489,5 @@ button.primary.live { background: var(--on); border-color: var(--on); }
 .am-close { background: transparent; border: none; color: var(--dim); cursor: pointer; font-size: 13px; padding: 0 2px; }
 .am-close:hover { color: var(--warn); }
 .am-val { padding: 14px 10px; text-align: center; font-size: 24px; font-weight: 700; color: var(--on); font-variant-numeric: tabular-nums; }
+.an-scope { width: 288px; }
+.am-plot { display: block; margin: 6px auto; width: 272px; height: 150px; background: #0a1a12; border-radius: 4px; }
