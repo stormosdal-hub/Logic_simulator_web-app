@@ -107,11 +107,83 @@ function _drawComp(g, c, sim, res) {
     g.beginPath();
     g.moveTo(-12, -8); g.lineTo(12, -8); g.moveTo(-8, -3); g.lineTo(8, -3); g.moveTo(-4, 2); g.lineTo(4, 2);
     g.stroke();
+  } else if (c.type === "CAP") {
+    g.beginPath(); g.moveTo(-34, 0); g.lineTo(-6, 0); g.moveTo(6, 0); g.lineTo(34, 0); g.stroke();
+    g.beginPath(); g.moveTo(-6, -13); g.lineTo(-6, 13); g.moveTo(6, -13); g.lineTo(6, 13); g.stroke();
+  } else if (c.type === "IND") {
+    g.beginPath(); g.moveTo(-34, 0); g.lineTo(-24, 0); g.moveTo(24, 0); g.lineTo(34, 0); g.stroke();
+    g.beginPath();
+    for (let i = 0; i < 4; i++) g.arc(-18 + i * 12, 0, 6, Math.PI, 0, true);   // coil humps
+    g.stroke();
+  } else if (c.type === "ACV") {
+    g.beginPath(); g.moveTo(0, -34); g.lineTo(0, -16); g.moveTo(0, 16); g.lineTo(0, 34); g.stroke();
+    g.beginPath(); g.arc(0, 0, 16, 0, 7); g.fillStyle = "#182338"; g.fill(); g.stroke();
+    g.beginPath(); g.strokeStyle = "#ffd166";
+    for (let i = -10; i <= 10; i++) { const x = i, y = -7 * Math.sin(i / 10 * Math.PI); i === -10 ? g.moveTo(x, y) : g.lineTo(x, y); }
+    g.stroke();
   } else if (c.type === "VM" || c.type === "AM") {
     g.beginPath(); g.moveTo(-34, 0); g.lineTo(-16, 0); g.moveTo(16, 0); g.lineTo(34, 0); g.stroke();
     g.beginPath(); g.arc(0, 0, 16, 0, 7); g.fillStyle = "#182338"; g.fill(); g.stroke();
     g.fillStyle = "#ffd166"; g.font = "bold 15px sans-serif"; g.textAlign = "center"; g.textBaseline = "middle";
     g.fillText(c.type === "VM" ? "V" : "A", 0, 1);
+  } else if (c.type === "SCOPE") {
+    g.beginPath(); g.moveTo(-34, 0); g.lineTo(-20, 0); g.moveTo(20, 0); g.lineTo(34, 0); g.stroke();
+    g.beginPath(); g.rect(-20, -15, 40, 30); g.fillStyle = "#0a2a1e"; g.fill(); g.stroke();
+    g.beginPath(); g.strokeStyle = "#3fdc8b"; g.lineWidth = 1.5;
+    for (let i = -16; i <= 16; i++) { const y = -7 * Math.sin(i / 16 * Math.PI * 2); i === -16 ? g.moveTo(i, y) : g.lineTo(i, y); }
+    g.stroke();
+  } else if (c.type === "DIODE") {
+    g.beginPath(); g.moveTo(-30, 0); g.lineTo(-8, 0); g.moveTo(8, 0); g.lineTo(30, 0); g.stroke();   // leads
+    g.beginPath(); g.moveTo(-8, -11); g.lineTo(-8, 11); g.lineTo(9, 0); g.closePath(); g.fillStyle = "#cdd8ea"; g.fill(); g.stroke();  // anode triangle
+    g.beginPath(); g.moveTo(9, -11); g.lineTo(9, 11); g.stroke();   // cathode bar
+  } else if (c.type === "LED") {
+    const I = sim && res && res.ok ? res.current(c) : 0;
+    const lit = Math.max(0, Math.min(1, I / 0.008));
+    g.beginPath(); g.moveTo(-30, 0); g.lineTo(-8, 0); g.moveTo(8, 0); g.lineTo(30, 0); g.stroke();
+    if (lit > 0.02) { g.save(); g.globalAlpha = 0.4 * lit; g.fillStyle = "#ff5a5a"; g.beginPath(); g.arc(0, 0, 22, 0, 7); g.fill(); g.restore(); }
+    g.beginPath(); g.moveTo(-8, -11); g.lineTo(-8, 11); g.lineTo(9, 0); g.closePath();
+    g.fillStyle = `rgb(${Math.round(90 + 165 * lit)},${Math.round(35 + 40 * lit)},${Math.round(45 + 30 * lit)})`; g.fill(); g.stroke();
+    g.beginPath(); g.moveTo(9, -11); g.lineTo(9, 11); g.stroke();
+    g.strokeStyle = lit > 0.02 ? "#ff9a9a" : "#8090a8"; g.lineWidth = 1.4;   // emission arrows
+    for (const dx of [-1, 6]) {
+      g.beginPath(); g.moveTo(dx, -13); g.lineTo(dx + 7, -20); g.stroke();
+      g.beginPath(); g.moveTo(dx + 7, -20); g.lineTo(dx + 3.5, -18.5); g.moveTo(dx + 7, -20); g.lineTo(dx + 5.5, -16); g.stroke();
+    }
+  } else if (c.type === "NPN" || c.type === "PNP") {
+    const npn = c.type === "NPN";
+    g.beginPath(); g.arc(0, 0, 19, 0, 7); g.fillStyle = "#182338"; g.fill(); g.stroke();
+    g.beginPath(); g.moveTo(-34, 0); g.lineTo(-8, 0); g.stroke();           // base lead
+    g.beginPath(); g.moveTo(-8, -11); g.lineTo(-8, 11); g.stroke();          // base bar
+    g.beginPath(); g.moveTo(-8, -6); g.lineTo(9, -14); g.lineTo(9, -14); g.moveTo(9, -14); g.lineTo(34, -28); g.stroke();   // collector
+    g.beginPath(); g.moveTo(-8, 6); g.lineTo(9, 14); g.moveTo(9, 14); g.lineTo(34, 28); g.stroke();                          // emitter
+    // emitter arrow: NPN points out (toward emitter), PNP points in (toward base)
+    const ax = npn ? 9 : -8, ay = npn ? 14 : 6, bx = npn ? 2 : 3, by = npn ? 11.5 : 8.5;
+    g.fillStyle = "#cdd8ea";
+    g.beginPath(); g.moveTo(ax, ay); g.lineTo(bx, by); g.lineTo(npn ? 8 : -1, npn ? 8 : 11.5); g.closePath(); g.fill();
+  } else if (c.type === "SW") {
+    g.beginPath(); g.moveTo(-30, 0); g.lineTo(-14, 0); g.moveTo(14, 0); g.lineTo(30, 0); g.stroke();
+    g.fillStyle = "#cdd8ea";
+    g.beginPath(); g.arc(-14, 0, 2.5, 0, 7); g.fill(); g.beginPath(); g.arc(14, 0, 2.5, 0, 7); g.fill();
+    g.beginPath(); g.moveTo(-14, 0); c.closed ? g.lineTo(14, 0) : g.lineTo(12, -13); g.stroke();   // knife lever
+  } else if (c.type === "PUSH") {
+    g.beginPath(); g.moveTo(-30, 0); g.lineTo(-11, 0); g.moveTo(11, 0); g.lineTo(30, 0); g.stroke();
+    g.beginPath(); g.moveTo(-11, 0); g.lineTo(-11, -4); g.moveTo(11, 0); g.lineTo(11, -4); g.stroke();   // posts
+    const by = c.closed ? -4 : -9;
+    g.beginPath(); g.moveTo(-13, by); g.lineTo(13, by); g.stroke();     // bridging bar
+    g.beginPath(); g.moveTo(0, by); g.lineTo(0, by - 8); g.stroke();    // stem
+    g.beginPath(); g.arc(0, by - 11, 3, 0, 7); g.stroke();             // cap
+  } else if (c.type === "RELAY") {
+    const on = sim && res && res.ok && !!c._on;
+    // coil (left) between terminals 0 & 1
+    g.beginPath(); g.moveTo(-34, -24); g.lineTo(-22, -24); g.lineTo(-22, -14); g.moveTo(-34, 24); g.lineTo(-22, 24); g.lineTo(-22, 14); g.stroke();
+    g.beginPath(); g.rect(-22, -14, 12, 28); g.fillStyle = "#182338"; g.fill(); g.stroke();
+    // normally-open contact (right) between terminals 2 & 3, closes when energised
+    g.beginPath(); g.moveTo(34, -24); g.lineTo(22, -24); g.lineTo(22, -14); g.moveTo(34, 24); g.lineTo(22, 24); g.lineTo(22, 14); g.stroke();
+    g.fillStyle = "#cdd8ea";
+    g.beginPath(); g.arc(22, -14, 2.5, 0, 7); g.fill(); g.beginPath(); g.arc(22, 14, 2.5, 0, 7); g.fill();
+    g.beginPath(); g.moveTo(22, 14); on ? g.lineTo(22, -14) : g.lineTo(34, -6); g.stroke();
+    g.save(); g.setLineDash([3, 3]); g.lineWidth = 1.2; g.strokeStyle = on ? "#ffd166" : "#5a6a85";   // actuator
+    g.beginPath(); g.moveTo(-10, 0); g.lineTo(22, 0); g.stroke(); g.restore();
   }
   g.restore();
 
@@ -120,8 +192,14 @@ function _drawComp(g, c, sim, res) {
   g.fillStyle = "#9fb3d0"; g.font = "12px sans-serif"; g.textAlign = "center"; g.textBaseline = "top";
   let label = "";
   if (c.type === "RES") label = Analog.fmt(c.value, "Ω");
+  else if (c.type === "CAP") label = Analog.fmt(c.value, "F");
+  else if (c.type === "IND") label = Analog.fmt(c.value, "H");
   else if (c.type === "DCV") label = Analog.fmt(c.value, "V");
-  else if (c.type === "VM" || c.type === "AM") {
+  else if (c.type === "ACV") label = Analog.fmt(c.value, "V") + " " + Analog.fmt(c.freq || 0, "Hz");
+  else if (c.type === "NPN" || c.type === "PNP") { label = "β " + Math.round(c.value); if (sim && res && res.ok) { g.fillStyle = "#ffd166"; label = "Ic " + Analog.fmt(res.current(c), "A"); } }
+  else if (c.type === "DIODE" || c.type === "LED") { if (sim && res && res.ok) { g.fillStyle = "#ffd166"; label = Analog.fmt(res.meter(c), "V"); } }
+  else if (c.type === "RELAY") { label = Analog.fmt(c.value, "Ω"); if (sim && res && res.ok) { g.fillStyle = c._on ? "#7CFC7C" : "#9fb3d0"; label = c._on ? "ON" : "off"; } }
+  else if (Analog.isMeter(c)) {
     label = def.name;
     if (sim && res && res.ok) { g.fillStyle = "#ffd166"; label = Analog.fmt(res.meter(c), def.unit); }
   }

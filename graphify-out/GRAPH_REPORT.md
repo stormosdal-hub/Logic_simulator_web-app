@@ -1,16 +1,16 @@
 # Graph Report - Logic_simulator_web-app  (2026-07-01)
 
 ## Corpus Check
-- 26 files · ~43,871 words
+- 26 files · ~50,428 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 403 nodes · 881 edges · 28 communities (22 shown, 6 thin omitted)
-- Extraction: 72% EXTRACTED · 28% INFERRED · 0% AMBIGUOUS · INFERRED: 243 edges (avg confidence: 0.81)
+- 407 nodes · 888 edges · 26 communities (20 shown, 6 thin omitted)
+- Extraction: 73% EXTRACTED · 27% INFERRED · 0% AMBIGUOUS · INFERRED: 244 edges (avg confidence: 0.81)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `59a4ef3c`
+- Built from commit: `03b888e1`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -29,7 +29,6 @@
 - [[_COMMUNITY_Bus & Junction Logic|Bus & Junction Logic]]
 - [[_COMMUNITY_Address Components|Address Components]]
 - [[_COMMUNITY_LED Matrix|LED Matrix]]
-- [[_COMMUNITY_Community 14|Community 14]]
 - [[_COMMUNITY_Community 15|Community 15]]
 - [[_COMMUNITY_Community 16|Community 16]]
 - [[_COMMUNITY_Community 17|Community 17]]
@@ -55,14 +54,14 @@
 ## Surprising Connections (you probably didn't know these)
 - `Orthogonal Wire Routing` --semantically_similar_to--> `Wire Routing Math (defaultWireRoute)`  [INFERRED] [semantically similar]
   CLAUDE.md → .claude/agents/sim-engine.md
+- `_anBuild()` --calls--> `A`  [INFERRED]
+  js/analog/engine.js → test/analog.js
 - `releaseMomentaryInputs()` --calls--> `toggleInput()`  [INFERRED]
   js/ui.js → js/engine.js
 - `drawSelection()` --calls--> `isBus()`  [INFERRED]
   js/render.js → js/model.js
-- `afterSimChange() Post-Simulation Hook` --conceptually_related_to--> `Canvas Setup (initCanvas / RAF loop)`  [INFERRED]
-  CLAUDE.md → .claude/agents/renderer.md
-- `Split Inspector Pane` --conceptually_related_to--> `Canvas Setup (initCanvas / RAF loop)`  [INFERRED]
-  CLAUDE.md → .claude/agents/renderer.md
+- `loadLocal()` --calls--> `setTopCircuit()`  [INFERRED]
+  js/ui.js → js/model.js
 
 ## Import Cycles
 - None detected.
@@ -72,31 +71,31 @@
 - **Headless Node.js Test Architecture (no DOM)** — claude_puremodules, agents_qa_vmtestrunner, agents_qa_qaagent [EXTRACTED 1.00]
 - **Simulation Settlement Pipeline** — claude_gaussseidelsim, agents_sim_engine_passcircuit, agents_sim_engine_simobject [EXTRACTED 1.00]
 
-## Communities (28 total, 6 thin omitted)
+## Communities (26 total, 6 thin omitted)
 
 ### Community 0 - "Chip Definitions & Builtins"
-Cohesion: 0.08
-Nodes (38): Canvas Setup (initCanvas / RAF loop), Color Scheme (COL), Component Drawing (drawComp), Wire Rendering (drawWire), Hit Testing (hitPin / hitComp / hitWire), Palette Icons (paintToolIcon), Renderer Agent, uiHits Array (+30 more)
+Cohesion: 0.06
+Nodes (52): 4-bit Ripple Counter, 4-bit Register, 4-bit Shift Register, 74HC595 Shift Register IC, Components Agent, defineBuiltin DSL, D Flip-Flop, D Latch (+44 more)
 
 ### Community 1 - "Component Data Model"
-Cohesion: 0.11
-Nodes (50): addrWidth(), compBox(), compSize(), isGate(), numInputsOf(), numOutputsOf(), pinPos(), pinPosLogical() (+42 more)
+Cohesion: 0.10
+Nodes (58): busValue(), matrixLit(), addrWidth(), compBox(), compSize(), isGate(), numInputsOf(), numOutputsOf() (+50 more)
 
 ### Community 2 - "Interaction & Navigation"
-Cohesion: 0.10
-Nodes (57): afterStructChange(), addAt(), buildMenuLevel(), compMenuItems(), copySelection(), dedupeLabel(), deleteSelection(), dragWireSegment() (+49 more)
+Cohesion: 0.12
+Nodes (44): buildMenuLevel(), compMenuItems(), copySelection(), enterComponent(), goToLevel(), hideContextMenu(), initInteractions(), initSplit() (+36 more)
 
 ### Community 3 - "Edit Operations & Wiring"
-Cohesion: 0.14
-Nodes (25): onUIHit(), seedDemo(), ADDR_TYPES, addWire(), addWireBus(), App, clampBits(), Defs (+17 more)
+Cohesion: 0.09
+Nodes (44): afterStructChange(), exprTreeForOutputPin(), addAt(), dedupeLabel(), deleteSelection(), dragWireSegment(), onCanvasDrop(), onUIHit() (+36 more)
 
 ### Community 4 - "Simulation Engine"
-Cohesion: 0.10
-Nodes (50): afterSimChange(), applyTTRow(), bitEq(), busConflict(), busValue(), clockTick(), collectCircuits(), computeTruthTable() (+42 more)
+Cohesion: 0.13
+Nodes (39): afterSimChange(), applyTTRow(), bitEq(), busConflict(), clockTick(), collectCircuits(), computeTruthTable(), copyVal() (+31 more)
 
 ### Community 5 - "Boolean Expressions & Timeline"
-Cohesion: 0.09
-Nodes (39): defineBuiltin(), registerBuiltinDefs(), timelineSignals(), topOutputExprs(), busValsToHex(), builtinDefs(), createDefFromCircuit(), customDefs() (+31 more)
+Cohesion: 0.08
+Nodes (36): defineBuiltin(), registerBuiltinDefs(), ctxForViewStack(), timelineSignals(), topOutputExprs(), busValsToHex(), builtinDefs(), createDefFromCircuit() (+28 more)
 
 ### Community 6 - "MCP Package Config"
 Cohesion: 0.29
@@ -113,10 +112,6 @@ Nodes (4): __dirname, server, transport, VAULT
 ### Community 9 - "Builtin Registry"
 Cohesion: 0.13
 Nodes (14): Breadcrumbs (`updateCrumbs`), Create IC (`createIC`), Dropdown panels, Export / import, Expression popup, Initialisation order (main.js), Key invariants, Mode switching (`setMode`) (+6 more)
-
-### Community 14 - "Community 14"
-Cohesion: 0.23
-Nodes (14): 4-bit Ripple Counter, 4-bit Register, 4-bit Shift Register, 74HC595 Shift Register IC, Components Agent, defineBuiltin DSL, D Flip-Flop, D Latch (+6 more)
 
 ### Community 15 - "Community 15"
 Cohesion: 0.20
@@ -143,22 +138,22 @@ Cohesion: 0.67
 Nodes (3): QA Agent, VM Test Runner Pattern, Pure Module Architecture (no DOM)
 
 ### Community 22 - "Community 22"
-Cohesion: 0.25
-Nodes (5): A, ctx, fs, path, vm
+Cohesion: 0.18
+Nodes (8): _anBuild(), _anSolve(), _anSolveMode(), A, ctx, fs, path, vm
 
 ## Knowledge Gaps
-- **85 isolated node(s):** `node`, `name`, `version`, `type`, `main` (+80 more)
+- **84 isolated node(s):** `node`, `name`, `version`, `type`, `main` (+79 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **6 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `requestRender()` connect `Interaction & Navigation` to `Component Data Model`, `Simulation Engine`, `Boolean Expressions & Timeline`?**
-  _High betweenness centrality (0.033) - this node is a cross-community bridge._
+- **Why does `requestRender()` connect `Interaction & Navigation` to `Component Data Model`, `Edit Operations & Wiring`, `Simulation Engine`, `Boolean Expressions & Timeline`?**
+  _High betweenness centrality (0.032) - this node is a cross-community bridge._
 - **Why does `$()` connect `Boolean Expressions & Timeline` to `Interaction & Navigation`, `Simulation Engine`?**
-  _High betweenness centrality (0.031) - this node is a cross-community bridge._
-- **Why does `afterStructChange()` connect `Interaction & Navigation` to `Edit Operations & Wiring`, `Simulation Engine`?**
+  _High betweenness centrality (0.030) - this node is a cross-community bridge._
+- **Why does `afterStructChange()` connect `Edit Operations & Wiring` to `Interaction & Navigation`, `Simulation Engine`?**
   _High betweenness centrality (0.015) - this node is a cross-community bridge._
 - **Are the 2 inferred relationships involving `$()` (e.g. with `hideContextMenu()` and `showContextMenu()`) actually correct?**
   _`$()` has 2 INFERRED edges - model-reasoned connections that need verification._
